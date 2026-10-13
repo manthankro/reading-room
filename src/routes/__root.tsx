@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-r
 import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { ReadingHydration } from "@/components/reading-hydration";
+import { ReadingSync } from "@/components/reading-sync";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Reading Room";
@@ -14,7 +15,8 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "A private shelf for slow reading. Public-domain stories, essays, poems, and letters.",
+        content:
+          "A private shelf for slow reading. Public-domain stories, essays, poems, and letters.",
       },
       { name: "theme-color", content: "#121110" },
     ],
@@ -39,6 +41,7 @@ export const Route = createRootRoute({
       <body>
         <PreviewHostBridge />
         <ReadingHydration />
+        <ReadingSync />
         <AuthProvider>
           <Outlet />
         </AuthProvider>

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { ArrowLeft, Lamp, Moon, PenLine, Sun, X } from "lucide-react";
+import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Sun, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { getWork, readingMinutes } from "@/lib/library";
 import {
@@ -43,10 +43,11 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const hydrated = useReadingStore((state) => state.hydrated);
   const place = useReadingStore((state) => state.places[slug]);
   const allNotes = useReadingStore((state) => state.notes);
-  const notes = useMemo(
-    () => allNotes.filter((note) => note.slug === slug),
-    [allNotes, slug],
+  const notes = useMemo(() => allNotes.filter((note) => note.slug === slug), [allNotes, slug]);
+  const highlights = useReadingStore((state) =>
+    state.highlights.filter((item) => item.slug === slug),
   );
+  const bookmarks = useReadingStore((state) => state.bookmarks);
   const seconds = useReadingStore((state) => state.seconds[slug] ?? 0);
   const light = useReadingStore((state) => state.light);
   const size = useReadingStore((state) => state.size);
@@ -57,6 +58,9 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const addSeconds = useReadingStore((state) => state.addSeconds);
   const addNote = useReadingStore((state) => state.addNote);
   const removeNote = useReadingStore((state) => state.removeNote);
+  const toggleBookmark = useReadingStore((state) => state.toggleBookmark);
+  const addHighlight = useReadingStore((state) => state.addHighlight);
+  const removeHighlight = useReadingStore((state) => state.removeHighlight);
   const setLight = useReadingStore((state) => state.setLight);
   const setSize = useReadingStore((state) => state.setSize);
   const setMeasure = useReadingStore((state) => state.setMeasure);
@@ -104,8 +108,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
         const index = Number((visible.target as HTMLElement).dataset.p);
         if (Number.isNaN(index)) return;
         const current = useReadingStore.getState().places[slug];
-        const finished =
-          Boolean(current?.finished) || (last > 0 && index >= last && index > 0);
+        const finished = Boolean(current?.finished) || (last > 0 && index >= last && index > 0);
         if (!current && index === 0 && !finished) return;
         if (current && current.index === index && current.finished === finished) return;
         const ratio = last === 0 ? 1 : index / last;
@@ -164,7 +167,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
       setAnchor({
         text,
         top: Math.min(window.innerHeight - 64, Math.max(8, rect.bottom + 8)),
-        left: Math.min(window.innerWidth - 168, Math.max(12, rect.left)),
+        left: Math.min(window.innerWidth - 240, Math.max(12, rect.left)),
       });
     };
     document.addEventListener("selectionchange", onSelect);
@@ -247,6 +250,17 @@ export function ReaderScreen({ slug }: { slug: string }) {
             <button
               type="button"
               className="btn btn-quiet shrink-0 px-3"
+              aria-pressed={bookmarks.some(
+                (item) => item.slug === slug && item.index === (place?.index ?? 0),
+              )}
+              aria-label="Bookmark this place"
+              onClick={() => toggleBookmark(slug, place?.index ?? 0)}
+            >
+              <Bookmark className="size-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet shrink-0 px-3"
               aria-label={notes.length > 0 ? `Notes, ${notes.length}` : "Notes"}
               onClick={() => openNotes()}
             >
@@ -312,7 +326,9 @@ export function ReaderScreen({ slug }: { slug: string }) {
           ))}
         </div>
 
-        <footer className={`mx-auto mt-12 border-t pt-6 hairline ${poem ? "measure-narrow" : "measure-comfort"}`}>
+        <footer
+          className={`mx-auto mt-12 border-t pt-6 hairline ${poem ? "measure-narrow" : "measure-comfort"}`}
+        >
           <p className="kicker sub">End</p>
           <p className="sub mt-3 text-sm">Public domain.</p>
           {!place?.finished ? (
@@ -336,28 +352,56 @@ export function ReaderScreen({ slug }: { slug: string }) {
       </article>
 
       {anchor ? (
-        <button
-          type="button"
-          className="btn btn-solid keep-line"
-          style={{ top: anchor.top, left: anchor.left }}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
-            openNotes(anchor.text);
-            setAnchor(null);
-            window.getSelection()?.removeAllRanges();
-          }}
-        >
-          Keep this line
-        </button>
+        <div className="keep-line" style={{ top: anchor.top, left: anchor.left }}>
+          <button
+            type="button"
+            className="btn btn-solid"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              openNotes(anchor.text);
+              setAnchor(null);
+              window.getSelection()?.removeAllRanges();
+            }}
+          >
+            Keep as note
+          </button>
+          <button
+            type="button"
+            className="btn btn-quiet"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              addHighlight(slug, anchor.text);
+              setAnchor(null);
+              window.getSelection()?.removeAllRanges();
+            }}
+          >
+            Highlight
+          </button>
+        </div>
       ) : null}
 
       {notesOn ? (
         <div className="fixed inset-0 z-40 flex justify-end">
-          <button type="button" className="backdrop absolute inset-0" aria-label="Close notes" onClick={closeNotes} />
-          <aside className={notesClosing ? "panel closing relative flex flex-col" : "panel relative flex flex-col"} aria-label="Marginal notes">
+          <button
+            type="button"
+            className="backdrop absolute inset-0"
+            aria-label="Close notes"
+            onClick={closeNotes}
+          />
+          <aside
+            className={
+              notesClosing ? "panel closing relative flex flex-col" : "panel relative flex flex-col"
+            }
+            aria-label="Marginal notes"
+          >
             <div className="flex items-center justify-between border-b hairline px-5 py-4">
               <h2 className="font-reading text-2xl">Notes</h2>
-              <button type="button" className="btn btn-ghost" onClick={closeNotes} aria-label="Close notes">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={closeNotes}
+                aria-label="Close notes"
+              >
                 <X className="size-4" aria-hidden />
               </button>
             </div>
@@ -401,8 +445,34 @@ export function ReaderScreen({ slug }: { slug: string }) {
                 <p className="mb-8 text-sm muted">Select a line in the text, then keep it here.</p>
               )}
 
+              <div className="mb-8">
+                <h3 className="kicker">Highlights · {highlights.length}</h3>
+                {highlights.length ? (
+                  <ul className="mt-3 space-y-4">
+                    {highlights.map((item) => (
+                      <li key={item.id} className="border-b hairline pb-4">
+                        <blockquote className="quote">{item.quote}</blockquote>
+                        <div className="mt-2 flex justify-end">
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={() => removeHighlight(item.id)}
+                          >
+                            Remove highlight
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm muted">
+                    Select a passage and choose Highlight to keep it here.
+                  </p>
+                )}
+              </div>
+              <h3 className="kicker">Margin notes · {notes.length}</h3>
               {notes.length === 0 ? (
-                <p className="font-reading text-lg">No notes in this volume yet.</p>
+                <p className="mt-3 font-reading text-lg">No notes in this volume yet.</p>
               ) : (
                 <ul className="flex flex-col gap-5">
                   {notes.map((note) => (
@@ -410,8 +480,14 @@ export function ReaderScreen({ slug }: { slug: string }) {
                       <blockquote className="quote">{note.quote}</blockquote>
                       <p className="mt-3 font-reading text-lg leading-snug">{note.body}</p>
                       <div className="mt-3 flex items-center justify-between gap-3">
-                        <p className="text-sm tabular-nums muted">{format(note.createdAt, "d MMM yyyy")}</p>
-                        <button type="button" className="btn btn-ghost" onClick={() => removeNote(note.id)}>
+                        <p className="text-sm tabular-nums muted">
+                          {format(note.createdAt, "d MMM yyyy")}
+                        </p>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          onClick={() => removeNote(note.id)}
+                        >
                           Remove
                         </button>
                       </div>

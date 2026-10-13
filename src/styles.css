@@ -156,6 +156,58 @@
   outline-offset: 2px;
 }
 
+.select-field {
+  min-height: 2.75rem;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--ui-line);
+  background: var(--ui-elev);
+  color: var(--ui-fg);
+  padding: 0 0.75rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+
+.select-field:focus {
+  outline: 2px solid color-mix(in oklab, var(--color-accent) 75%, white);
+  outline-offset: 2px;
+}
+
+.select-field.compact {
+  width: auto;
+  min-height: 2.25rem;
+  padding-inline: 0.5rem;
+}
+
+.filter-label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--ui-muted);
+  font-size: var(--text-xs);
+}
+
+.collection-card {
+  min-height: 8.5rem;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: left;
+  background: var(--ui-elev);
+  color: var(--ui-fg);
+  transition:
+    border-color 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+}
+
+.collection-card:hover,
+.collection-card.selected {
+  border-color: var(--ui-muted);
+}
+
+.collection-card:active {
+  transform: translateY(1px);
+}
+
 .btn {
   display: inline-flex;
   min-height: 2.75rem;
@@ -405,7 +457,8 @@
 .keep-line {
   position: fixed;
   z-index: 40;
-  min-height: 2.75rem;
+  display: flex;
+  gap: 0.4rem;
 }
 
 @keyframes panel-in {
@@ -431,6 +484,7 @@
   .btn,
   .row,
   .chip,
+  .collection-card,
   .panel {
     transition: none;
     animation: none;
