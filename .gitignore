@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.output/
+.vercel/
+.tanstack/
+coverage/
+*.log
+.DS_Store
