@@ -44,8 +44,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const place = useReadingStore((state) => state.places[slug]);
   const allNotes = useReadingStore((state) => state.notes);
   const notes = useMemo(() => allNotes.filter((note) => note.slug === slug), [allNotes, slug]);
-  const highlights = useReadingStore((state) =>
-    state.highlights.filter((item) => item.slug === slug),
+  const allHighlights = useReadingStore((state) => state.highlights);
+  const highlights = useMemo(
+    () => allHighlights.filter((item) => item.slug === slug),
+    [allHighlights, slug],
   );
   const bookmarks = useReadingStore((state) => state.bookmarks);
   const seconds = useReadingStore((state) => state.seconds[slug] ?? 0);
