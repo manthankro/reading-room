@@ -1,35 +1,4 @@
-export type Shelf = "story" | "essay" | "poem" | "letter" | "comic";
-
-export type Genre =
-  | "comedy"
-  | "emotional"
-  | "romance"
-  | "love"
-  | "comic"
-  | "action"
-  | "adventure"
-  | "horror"
-  | "poetry"
-  | "essay"
-  | "letter";
-
-export type ComicPanel = {
-  scene: string;
-  speaker: string;
-  line: string;
-};
-
-export type StoryChoice = {
-  label: string;
-  next: string;
-};
-
-export type StoryNode = {
-  id: string;
-  text: string;
-  choices?: StoryChoice[];
-  ending?: boolean;
-};
+export type Shelf = "story" | "essay" | "poem" | "letter";
 
 export type Work = {
   slug: string;
@@ -37,13 +6,7 @@ export type Work = {
   author: string;
   year: number;
   shelf: Shelf;
-  genres?: Genre[];
-  readingMinutes?: number;
-  summary?: string;
-  paragraphs?: string[];
-  panels?: ComicPanel[];
-  nodes?: StoryNode[];
-  provenance?: string;
+  paragraphs: string[];
 };
 
 export const works: Work[] = [
@@ -53,16 +16,22 @@ export const works: Work[] = [
     author: "Kate Chopin",
     year: 1894,
     shelf: "story",
-    genres: ["emotional"],
-    readingMinutes: 5,
-    summary: "A woman receives news of her husband's death and discovers an unexpected freedom.",
     paragraphs: [
       "Knowing that Mrs. Mallard was afflicted with a heart trouble, great care was taken to break to her as gently as possible the news of her husband's death.",
-      "It was her sister Josephine who told her, in broken sentences; veiled hints that revealed in half concealing.",
+      "It was her sister Josephine who told her, in broken sentences; veiled hints that revealed in half concealing. Her husband's friend Richards was there, too, near her.",
       "When the doctors came they said she had died of heart disease — of the joy that kills.",
     ],
-    provenance: "Public domain.",
+  },
+  {
+    slug: "the-gift-of-the-magi",
+    title: "The Gift of the Magi",
+    author: "O. Henry",
+    year: 1905,
+    shelf: "story",
+    paragraphs: [
+      "One dollar and eighty-seven cents. That was all. And sixty cents of it was in pennies.",
+      "There was clearly nothing to do but flop down on the shabby little couch and howl. So Della did it.",
+      "The magi, as you know, were wise men—wonderfully wise men—who brought gifts to the Babe in the manger.",
+    ],
   },
 ];
-
-/** Full public-domain + expanded catalogue lives in the Grok workspace zip (src/lib/works.ts, ~74 KB). */
