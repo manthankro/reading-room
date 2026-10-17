@@ -1,5 +1,8 @@
 /** Shared PWA / OG helpers used by the Vite plugin and Nitro middleware. */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 export const GROK_EXTENSIONS_SCRIPT_SRC =
   "https://grok.com/grok-app-builder/extensions.js";
 
@@ -21,15 +24,13 @@ export function readXCreatorId() {
 
 export function readOgSite(cwd = process.cwd()) {
   try {
-    const { readFileSync } = await import("node:fs");
-    const { join } = await import("node:path");
     return JSON.parse(readFileSync(join(cwd, "src/lib/og/site.json"), "utf8"));
   } catch {
     return {};
   }
 }
 
-export function renderWebManifest(hostHeader) {
+export function renderWebManifest(_hostHeader) {
   const name = "Reading Room";
   return JSON.stringify({
     name,
@@ -48,7 +49,7 @@ export function renderInstallPageHtml(template, context = {}) {
     .replace(/\{\{url\}\}/g, context.url ?? "");
 }
 
-export function injectGrokPwaHead(html, ctx = {}) {
+export function injectGrokPwaHead(html, _ctx = {}) {
   const tags = [
     `<link rel="manifest" href="/manifest.webmanifest" />`,
     `<script src="${GROK_EXTENSIONS_SCRIPT_SRC}" defer></script>`,
