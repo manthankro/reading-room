@@ -23,6 +23,7 @@ export function signOutTimeoutMs(livePreview) {
 export function settleWithin(start, timeoutMs) {
   return new Promise((resolve) => {
     let settled = false;
+    /** @param {"ok" | "failed" | "timeout"} outcome */
     const finish = (outcome) => {
       if (settled) return;
       settled = true;
