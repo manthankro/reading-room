@@ -1,8 +1,5 @@
 node_modules/
-dist/
-.output/
-.vercel/
-.tanstack/
-coverage/
-*.log
-.DS_Store
+.project_id
+.github_repo
+.env
+.env.*
