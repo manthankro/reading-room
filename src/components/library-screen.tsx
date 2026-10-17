@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { BookOpen, Download, Search, Upload } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { BookOpen, Download, Search, Shuffle, Sparkles, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
@@ -53,6 +53,19 @@ export function LibraryScreen() {
   const [collectionId, setCollectionId] = useState("");
   const [message, setMessage] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const workOfDay = useMemo(() => {
+    if (!catalogue.length) return undefined;
+    const day = Math.floor(Date.now() / 86_400_000);
+    return catalogue[day % catalogue.length];
+  }, []);
+
+  function surpriseMe() {
+    if (!catalogue.length) return;
+    const pick = catalogue[Math.floor(Math.random() * catalogue.length)];
+    void navigate({ to: "/read/$slug", params: { slug: pick.slug } });
+  }
   const hydrated = useReadingStore((state) => state.hydrated);
   const places = useReadingStore((state) => state.places);
   const notes = useReadingStore((state) => state.notes);
@@ -289,6 +302,36 @@ export function LibraryScreen() {
               />
             </label>
           </div>
+
+          {workOfDay ? (
+            <section className="mt-7 grid gap-3 sm:grid-cols-[1fr_auto]" aria-label="Highlights">
+              <Link
+                to="/read/$slug"
+                params={{ slug: workOfDay.slug }}
+                className="feature-card no-underline"
+              >
+                <p className="kicker flex items-center gap-2">
+                  <Sparkles className="size-3.5" aria-hidden /> Work of the day
+                </p>
+                <h2 className="mt-2 font-reading text-2xl leading-tight">{workOfDay.title}</h2>
+                <p className="mt-1 text-sm muted">
+                  {workOfDay.author} · {genreFor(workOfDay)} · {readingMinutes(workOfDay)} min
+                </p>
+                <p className="mt-3 line-clamp-2 font-reading text-lg leading-snug italic muted">
+                  {excerpt(openingLine(workOfDay), 160)}
+                </p>
+              </Link>
+              <button
+                type="button"
+                className="btn btn-ghost surprise-btn h-auto min-h-[5.5rem] flex-col gap-2 px-5 py-4 sm:min-w-[9.5rem]"
+                onClick={surpriseMe}
+              >
+                <Shuffle className="size-5" aria-hidden />
+                <span className="text-sm font-medium">Surprise me</span>
+              </button>
+            </section>
+          ) : null}
+
           <section className="mt-7" aria-labelledby="collections-heading">
             <div className="flex items-baseline justify-between gap-3">
               <h2 id="collections-heading" className="kicker">
@@ -304,7 +347,7 @@ export function LibraryScreen() {
                 </button>
               ) : null}
             </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <div className="path-grid mt-3 grid gap-3 sm:grid-cols-2">
               {collections.map((item) => (
                 <button
                   key={item.id}
