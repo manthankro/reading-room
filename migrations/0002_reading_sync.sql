@@ -1,5 +1,7 @@
-create table if not exists reading_sync (
-  user_id text primary key references "user" ("id") on delete cascade,
-  snapshot jsonb not null,
-  updated_at timestamptz not null default now()
+CREATE TABLE IF NOT EXISTS reading_progress (
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  work_slug TEXT NOT NULL,
+  progress JSONB NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, work_slug)
 );
