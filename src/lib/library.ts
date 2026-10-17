@@ -169,8 +169,7 @@ export const collections = [
   },
   {
     id: "body",
-    title: "Health &
- rest",
+    title: "Health & rest",
     note: "Sleep, breath, walking, and listening to limits.",
     select: (work: Work) => allGenresOf(work).includes("Health"),
   },
