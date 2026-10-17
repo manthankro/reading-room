@@ -1,4 +1,8 @@
-import { works, type Shelf, type Work } from "@/lib/works";
+import { works, type Genre, type Shelf, type Work } from "@/lib/works";
+import { originalWorks } from "@/lib/works-original";
+
+/** Full shelf: classics + original Reading Room pieces. */
+export const catalogue: Work[] = [...works, ...originalWorks];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
   { id: "all", label: "All" },
@@ -18,7 +22,7 @@ export const shelfLabel: Record<Shelf, string> = {
 export const shelfSequence: Shelf[] = ["story", "essay", "poem", "letter"];
 
 export function getWork(slug: string): Work | undefined {
-  return works.find((work) => work.slug === slug);
+  return catalogue.find((work) => work.slug === slug);
 }
 
 export function wordCount(work: Work): number {
@@ -39,21 +43,32 @@ export function excerpt(text: string, max = 140): string {
   return `${flat.slice(0, max - 1).trimEnd()}…`;
 }
 
+/** Primary genre label for filters and list rows. */
 export function genreFor(work: Work): string {
+  if (work.genres && work.genres.length > 0) return work.genres[0];
   if (work.shelf === "poem") return "Poetry";
   if (work.shelf === "letter") return "Letters";
   if (work.shelf === "essay") return "Essays";
   const title = `${work.title} ${work.author}`.toLowerCase();
-  if (/ghost|haunt|horror|house of usher|yellow wallpaper/.test(title)) return "Gothic";
-  if (/adventure|sea|island|treasure|journey|road/.test(title)) return "Adventure";
-  if (/love|magi|marriage|romance/.test(title)) return "Love & belonging";
+  if (/ghost|haunt|horror|house of usher|yellow wallpaper|tell-tale/.test(title))
+    return "Horror";
+  if (/adventure|sea|island|treasure|journey|road|ferry|lantern/.test(title))
+    return "Adventure";
+  if (/love|magi|marriage|romance|scarf|playlist/.test(title)) return "Love story";
+  if (/comic|panel/.test(title)) return "Comics";
   return "Short fiction";
+}
+
+export function allGenresOf(work: Work): Genre[] {
+  if (work.genres && work.genres.length > 0) return work.genres;
+  return [genreFor(work) as Genre];
 }
 
 export function periodFor(year: number): string {
   if (year < 1800) return "Before 1800";
   if (year < 1900) return "1800s";
-  return "1900s";
+  if (year < 2000) return "1900s";
+  return "2000s";
 }
 
 function editDistance(a: string, b: string): number {
@@ -62,7 +77,11 @@ function editDistance(a: string, b: string): number {
   for (let i = 1; i <= a.length; i += 1) {
     const next = [i];
     for (let j = 1; j <= b.length; j += 1) {
-      next[j] = Math.min(next[j - 1] + 1, row[j] + 1, row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      next[j] = Math.min(
+        next[j - 1] + 1,
+        row[j] + 1,
+        row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
     }
     row = next;
   }
@@ -72,7 +91,7 @@ function editDistance(a: string, b: string): number {
 export function matchesSearch(work: Work, query: string): boolean {
   const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
   if (!terms.length) return true;
-  const words = `${work.title} ${work.author} ${work.year} ${openingLine(work)}`
+  const words = `${work.title} ${work.author} ${work.year} ${openingLine(work)} ${(work.genres ?? []).join(" ")}`
     .toLocaleLowerCase()
     .normalize("NFKD")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
@@ -94,6 +113,38 @@ export const collections = [
     title: "A short pause",
     note: "A small volume for a little space in the day.",
     select: (work: Work) => readingMinutes(work) <= 5,
+  },
+  {
+    id: "heart",
+    title: "Matters of the heart",
+    note: "Love stories and the soft edges of belonging.",
+    select: (work: Work) => allGenresOf(work).includes("Love story"),
+  },
+  {
+    id: "after-dark",
+    title: "After dark",
+    note: "Horror, thrillers, and things that wait in the quiet.",
+    select: (work: Work) =>
+      allGenresOf(work).some((g) => g === "Horror" || g === "Thriller" || g === "Gothic"),
+  },
+  {
+    id: "laugh",
+    title: "Comedy shelf",
+    note: "Light trouble, umbrellas, and algorithms that apologize.",
+    select: (work: Work) => allGenresOf(work).includes("Comedy"),
+  },
+  {
+    id: "pulse",
+    title: "Action & adventure",
+    note: "Rooftops, ferries, salt maps, and last trains out.",
+    select: (work: Work) =>
+      allGenresOf(work).some((g) => g === "Action" || g === "Adventure"),
+  },
+  {
+    id: "panels",
+    title: "Comics",
+    note: "Panel-by-panel shorts for a quick turn of the page.",
+    select: (work: Work) => allGenresOf(work).includes("Comics"),
   },
   {
     id: "century",
