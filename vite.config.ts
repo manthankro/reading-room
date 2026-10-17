@@ -66,31 +66,14 @@ function authPopupPlugin(): Plugin {
     name: "app-builder:auth-popup",
     apply: "serve",
     configureServer(server) {
-      // Register immediately (not in a returned post-hook) so we run BEFORE
-      // TanStack Start / the SPA HTML fallback. A model-authored
-      // `src/routes/auth/popup.tsx` React page must never win this path.
       server.middlewares.use(async (req, res, next) => {
-        try {
-          const rawUrl = req.url ?? "";
-          const pathOnly = rawUrl.split("?", 1)[0] ?? "";
-          if (pathOnly !== "/auth/popup") {
-            next();
-            return;
-          }
-          if ((req.method ?? "GET").toUpperCase() !== "GET") {
-            res.statusCode = 405;
-            res.setHeader("content-type", "text/plain; charset=utf-8");
-            res.end("Method Not Allowed");
-            return;
-          }
+        const url = req.url ?? "";
+        if (!url.startsWith("/auth/popup")) {
+          next();
+          return;
+        }
 
-          const host = String(
-            req.headers["x-forwarded-host"] ?? req.headers.host ?? "localhost:8080",
-          );
-          const proto = String(
-            req.headers["x-forwarded-proto"] ??
-              ((req.socket as { encrypted?: boolean } | undefined)?.encrypted ? "https" : "http"),
-          );
+        try {
           const requestHeaders = new Headers();
           for (const [key, value] of Object.entries(req.headers)) {
             if (value === undefined) continue;
@@ -100,12 +83,10 @@ function authPopupPlugin(): Plugin {
               requestHeaders.set(key, value);
             }
           }
-          // Ensure Host is the public preview host so Better Auth's dynamic
-          // baseURL / redirect_uri match the popup origin.
-          if (!requestHeaders.has("host")) requestHeaders.set("host", host);
 
-          const request = new Request(`${proto}://${host}${rawUrl}`, {
-            method: "GET",
+          const host = req.headers.host ?? "localhost:8080";
+          const request = new Request(`http://${host}${url}`, {
+            method: req.method ?? "GET",
             headers: requestHeaders,
           });
 
