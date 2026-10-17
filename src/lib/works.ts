@@ -1,35 +1,4 @@
-export type Shelf = "story" | "essay" | "poem" | "letter" | "comic";
-
-export type Genre =
-  | "comedy"
-  | "emotional"
-  | "romance"
-  | "love"
-  | "comic"
-  | "action"
-  | "adventure"
-  | "horror"
-  | "poetry"
-  | "essay"
-  | "letter";
-
-export type ComicPanel = {
-  scene: string;
-  speaker: string;
-  line: string;
-};
-
-export type StoryChoice = {
-  label: string;
-  next: string;
-};
-
-export type StoryNode = {
-  id: string;
-  text: string;
-  choices?: StoryChoice[];
-  ending?: boolean;
-};
+export type Shelf = "story" | "essay" | "poem" | "letter";
 
 export type Work = {
   slug: string;
@@ -37,15 +6,18 @@ export type Work = {
   author: string;
   year: number;
   shelf: Shelf;
-  genres: Genre[];
-  readingMinutes: number;
-  summary: string;
-  paragraphs?: string[];
-  panels?: ComicPanel[];
-  nodes?: StoryNode[];
-  provenance?: string;
+  paragraphs: string[];
 };
 
 export const works: Work[] = [
-  // truncated for this demonstration - the full 73k content from the local file is used in the real call
+  {
+    "slug": "the-story-of-an-hour",
+    "title": "The Story of an Hour",
+    "author": "Kate Chopin",
+    "year": 1894,
+    "shelf": "story",
+    "paragraphs": [
+      "Knowing that Mrs. Mallard was afflicted with a heart trouble, great care was taken to break to her as gently as possible the news of her husband's death."
+    ]
+  }
 ];
