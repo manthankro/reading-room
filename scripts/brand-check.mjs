@@ -1,15 +1,6 @@
 #!/usr/bin/env node
 /**
- * Brand-asset gate shared by browser-smoke.mjs (and unit-testable without a
- * browser): a canvas app is almost always a game, and a game without a share
- * card is incomplete. The smoke runner calls this after the visual audit so a
- * missing card fails the same way a blank page does.
- *
- * Rules (from the og skill):
- * - custom-card apps (games, whimsical/creative) need public/og.jpg (or the
- *   path in src/lib/og/site.json) and site.json with card: "custom".
- * - A BRAND WARNING is treated as a soft fail by the smoke runner unless
- *   --strict-brand is passed.
+ * Brand-asset gate shared by browser-smoke.mjs.
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -31,9 +22,14 @@ export function checkBrand(cwd = process.cwd()) {
     warnings.push(`${SITE_JSON} is missing`);
   }
 
-  const cardPath = site.image
-    ? join(cwd, site.image.replace(/^\//, ""))
-    : join(cwd, DEFAULT_CARD);
+  let cardRel = DEFAULT_CARD;
+  if (typeof site.image === "string" && site.image.length > 0) {
+    cardRel = site.image.replace(/^\//, "");
+    if (!cardRel.startsWith("public/")) {
+      cardRel = join("public", cardRel);
+    }
+  }
+  const cardPath = join(cwd, cardRel);
   if (!existsSync(cardPath)) {
     warnings.push(`share card missing: ${cardPath}`);
   } else {
@@ -43,7 +39,7 @@ export function checkBrand(cwd = process.cwd()) {
     }
   }
 
-  if (site.card !== "custom" && site.card !== undefined) {
+  if (site.card !== undefined && site.card !== "custom") {
     warnings.push(`site.json card should be "custom" for custom-card apps (got ${JSON.stringify(site.card)})`);
   }
 
