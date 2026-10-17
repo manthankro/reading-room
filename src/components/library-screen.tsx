@@ -3,6 +3,7 @@ import { BookOpen, Download, Search, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
+  catalogue,
   collections,
   excerpt,
   genreFor,
@@ -22,7 +23,7 @@ import {
   useReadingStore,
   type ReadingSnapshot,
 } from "@/lib/reading-store";
-import { works, type Shelf } from "@/lib/works";
+import { type Shelf } from "@/lib/works";
 
 function isSnapshot(value: unknown): value is ReadingSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -66,11 +67,11 @@ export function LibraryScreen() {
   const finishedCount = Object.values(places).filter((place) => place.finished).length;
   const todaySeconds = hydrated ? (dailySeconds[new Date().toISOString().slice(0, 10)] ?? 0) : 0;
   const todayMinutes = Math.floor(todaySeconds / 60);
-  const genres = useMemo(() => [...new Set(works.map(genreFor))].sort(), []);
-  const authors = useMemo(() => [...new Set(works.map((work) => work.author))].sort(), []);
+  const genres = useMemo(() => [...new Set(catalogue.map(genreFor))].sort(), []);
+  const authors = useMemo(() => [...new Set(catalogue.map((work) => work.author))].sort(), []);
 
   const filtered = useMemo(() => {
-    let result = works.filter((work) => {
+    let result = catalogue.filter((work) => {
       if (shelf !== "all" && work.shelf !== shelf) return false;
       if (genre !== "all" && genreFor(work) !== genre) return false;
       if (period !== "all" && periodFor(work.year) !== period) return false;
@@ -105,13 +106,13 @@ export function LibraryScreen() {
   }, [hydrated, places]);
   const showResume = Boolean(
     resume &&
-    shelf === "all" &&
-    !query.trim() &&
-    genre === "all" &&
-    period === "all" &&
-    author === "all" &&
-    time === "all" &&
-    !collectionId,
+      shelf === "all" &&
+      !query.trim() &&
+      genre === "all" &&
+      period === "all" &&
+      author === "all" &&
+      time === "all" &&
+      !collectionId,
   );
 
   function exportShelf() {
@@ -245,7 +246,7 @@ export function LibraryScreen() {
             </p>
           ) : null}
           <p className="mt-5 text-sm muted">
-            {works.length} volumes · {notes.length} margin notes ·{" "}
+            {catalogue.length} volumes · {notes.length} margin notes ·{" "}
             {formatMinutes(totalSeconds(seconds))} together
           </p>
           {bookmarks.length ? (
@@ -341,7 +342,7 @@ export function LibraryScreen() {
               label="Period"
               value={period}
               onChange={setPeriod}
-              options={["all", "Before 1800", "1800s", "1900s"]}
+              options={["all", "Before 1800", "1800s", "1900s", "2000s"]}
             />
             <Filter
               label="Author"
@@ -465,7 +466,7 @@ function Filter({
   value,
   onChange,
   options,
-  labels = {},
+  labels,
 }: {
   label: string;
   value: string;
@@ -474,16 +475,16 @@ function Filter({
   labels?: Record<string, string>;
 }) {
   return (
-    <label className="filter-label">
-      <span>{label}</span>
+    <label className="block">
+      <span className="kicker">{label}</span>
       <select
-        className="select-field"
+        className="select-field mt-1 w-full"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
         {options.map((option) => (
           <option key={option} value={option}>
-            {labels[option] ?? (option === "all" ? "All" : option)}
+            {labels?.[option] ?? (option === "all" ? "All" : option)}
           </option>
         ))}
       </select>
