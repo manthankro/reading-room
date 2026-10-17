@@ -14,7 +14,12 @@ export type Genre =
   | "Essays"
   | "Letters"
   | "Gothic"
-  | "Short fiction";
+  | "Short fiction"
+  | "Motivational"
+  | "Psychological"
+  | "Health"
+  | "Mythology"
+  | "Song";
 
 export type Work = {
   slug: string;
