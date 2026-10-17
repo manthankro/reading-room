@@ -1,8 +1,15 @@
 import { works, type Genre, type Shelf, type Work } from "@/lib/works";
 import { originalWorks } from "@/lib/works-original";
+import { wisdomWorks } from "@/lib/works-wisdom";
+import { mythWorks } from "@/lib/works-myths";
 
-/** Full shelf: classics + original Reading Room pieces. */
-export const catalogue: Work[] = [...works, ...originalWorks];
+/** Full shelf: classics + original fiction + wisdom + mythology. */
+export const catalogue: Work[] = [
+  ...works,
+  ...originalWorks,
+  ...wisdomWorks,
+  ...mythWorks,
+];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
   { id: "all", label: "All" },
@@ -56,6 +63,8 @@ export function genreFor(work: Work): string {
     return "Adventure";
   if (/love|magi|marriage|romance|scarf|playlist/.test(title)) return "Love story";
   if (/comic|panel/.test(title)) return "Comics";
+  if (/myth|persephone|orpheus|rama|osiris|amaterasu|odin|inanna/.test(title))
+    return "Mythology";
   return "Short fiction";
 }
 
@@ -145,6 +154,37 @@ export const collections = [
     title: "Comics",
     note: "Panel-by-panel shorts for a quick turn of the page.",
     select: (work: Work) => allGenresOf(work).includes("Comics"),
+  },
+  {
+    id: "lift",
+    title: "Motivational",
+    note: "Small fires, honest returns, and doors you open anyway.",
+    select: (work: Work) => allGenresOf(work).includes("Motivational"),
+  },
+  {
+    id: "mind",
+    title: "Mind & mood",
+    note: "Psychological essays for clearer inner weather.",
+    select: (work: Work) => allGenresOf(work).includes("Psychological"),
+  },
+  {
+    id: "body",
+    title: "Health &
+ rest",
+    note: "Sleep, breath, walking, and listening to limits.",
+    select: (work: Work) => allGenresOf(work).includes("Health"),
+  },
+  {
+    id: "songs",
+    title: "Songs",
+    note: "Lyric pieces you can read like music.",
+    select: (work: Work) => allGenresOf(work).includes("Song"),
+  },
+  {
+    id: "myths",
+    title: "Mythology",
+    note: "Long retellings from Greece, Egypt, India, Rome, China, Japan, and beyond.",
+    select: (work: Work) => allGenresOf(work).includes("Mythology"),
   },
   {
     id: "century",
