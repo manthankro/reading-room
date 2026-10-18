@@ -1,7 +1,7 @@
-import { works, type Genre, type Shelf, type Work } from "@/lib/works";
-import { originalWorks } from "@/lib/works-original";
-import { wisdomWorks } from "@/lib/works-wisdom";
-import { mythWorks } from "@/lib/works-myths";
+import { works, type Genre, type Shelf, type Work } from "./works.ts";
+import { originalWorks } from "./works-original.ts";
+import { wisdomWorks } from "./works-wisdom.ts";
+import { mythWorks } from "./works-myths.ts";
 
 /** Full shelf: classics + original fiction + wisdom + mythology. */
 export const catalogue: Work[] = [
