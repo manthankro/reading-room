@@ -6,6 +6,7 @@ import {
   catalogue,
   comicPanels,
   collections,
+  compareTitlesAZ,
   excerpt,
   genreFor,
   getWork,
@@ -139,10 +140,10 @@ export function LibraryScreen() {
       sort === "short"
         ? readingMinutes(a) - readingMinutes(b)
         : sort === "author"
-          ? a.author.localeCompare(b.author) || a.title.localeCompare(b.title)
+          ? a.author.localeCompare(b.author) || compareTitlesAZ(a, b)
           : sort === "oldest"
             ? a.year - b.year
-            : a.title.localeCompare(b.title),
+            : compareTitlesAZ(a, b),
     );
     return result;
   }, [author, collectionId, genre, genreMood, language, period, query, shelf, sort, time]);
