@@ -50,6 +50,7 @@ export function LibraryScreen() {
   const [period, setPeriod] = useState("all");
   const [author, setAuthor] = useState("all");
   const [time, setTime] = useState("all");
+  const [language, setLanguage] = useState("all");
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
   const [genreMood, setGenreMood] = useState("");
@@ -84,6 +85,10 @@ export function LibraryScreen() {
   const todayMinutes = Math.floor(todaySeconds / 60);
   const genres = useMemo(() => [...new Set(catalogue.map(genreFor))].sort(), []);
   const authors = useMemo(() => [...new Set(catalogue.map((work) => work.author))].sort(), []);
+  const languages = useMemo(
+    () => [...new Set(catalogue.map((work) => work.language ?? "English"))].sort(),
+    [],
+  );
 
   const filtered = useMemo(() => {
     let result = catalogue.filter((work) => {
@@ -98,6 +103,7 @@ export function LibraryScreen() {
         if (!matchesMood) return false;
       }
       if (shelf !== "all" && work.shelf !== shelf) return false;
+      if (language !== "all" && (work.language ?? "English") !== language) return false;
       if (genre !== "all" && genreFor(work) !== genre) return false;
       if (period !== "all" && periodFor(work.year) !== period) return false;
       if (author !== "all" && work.author !== author) return false;
@@ -119,7 +125,7 @@ export function LibraryScreen() {
             : a.title.localeCompare(b.title),
     );
     return result;
-  }, [author, collectionId, genre, genreMood, period, query, shelf, sort, time]);
+  }, [author, collectionId, genre, genreMood, language, period, query, shelf, sort, time]);
 
   const resume = useMemo(() => {
     if (!hydrated) return undefined;
@@ -137,6 +143,7 @@ export function LibraryScreen() {
       period === "all" &&
       author === "all" &&
       time === "all" &&
+      language === "all" &&
       !collectionId &&
       !genreMood,
   );
@@ -445,6 +452,13 @@ export function LibraryScreen() {
             aria-label="Filter and sort works"
           >
             <Filter label="Genre" value={genre} onChange={setGenre} options={["all", ...genres]} />
+          <Filter
+            label="Language"
+            value={language}
+            onChange={setLanguage}
+            options={["all", ...languages]}
+            labels={{ all: "Every language" }}
+          />
             <Filter
               label="Period"
               value={period}
@@ -537,12 +551,12 @@ export function LibraryScreen() {
                             params={{ slug: work.slug }}
                             className="story-card no-underline"
                           >
-                            <div className="story-card-cover">
+                            <div className="story-card-cover" lang={work.language === "Marathi" ? "mr" : work.language === "Hindi" ? "hi" : "en"}>
                               <StoryArtwork work={work} />
                               <span className="story-card-status">{status}</span>
                             </div>
                             <div className="story-card-body">
-                              <p className="kicker">{genreFor(work)} · {work.year}</p>
+                              <p className="kicker">{genreFor(work)} · {work.language ?? "English"} · {work.year}</p>
                               <h3 className="mt-2 font-reading text-xl leading-snug">{work.title}</h3>
                               <p className="mt-1 text-sm muted">{work.author}</p>
                               <p className="mt-3 line-clamp-3 font-reading leading-snug italic muted">

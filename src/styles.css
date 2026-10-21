@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-reading: "Newsreader", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  --font-ui: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  --font-reading: "Newsreader", "Noto Serif Devanagari", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  --font-ui: "Outfit", "Noto Sans Devanagari", "Avenir Next", "Segoe UI", sans-serif;
 
-  --color-accent: #8c3d32;
-  --color-accent-fg: #f7f1e7;
+  --color-accent: #3f6b50;
+  --color-accent-fg: #f7f4eb;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -67,12 +67,12 @@
 }
 
 [data-light="lamp"] {
-  --ui-bg: #121110;
-  --ui-fg: #ece7df;
-  --ui-muted: #a39b90;
-  --ui-faint: #6f675e;
-  --ui-line: #2c2926;
-  --ui-elev: #1c1a17;
+  --ui-bg: #f4f0e6;
+  --ui-fg: #20382b;
+  --ui-muted: #53665a;
+  --ui-faint: #748277;
+  --ui-line: #d8d7ca;
+  --ui-elev: #fffdf7;
   --page-bg: #f3eee4;
   --page-fg: #1c1916;
   --page-muted: #5c564e;
@@ -348,6 +348,18 @@
 
 .reader p {
   margin: 0 0 1.15em;
+}
+
+.paper[lang="hi"] [data-readable],
+.paper[lang="mr"] [data-readable] {
+  font-family: "Noto Serif Devanagari", serif;
+  line-height: 1.9;
+}
+
+.paper[lang="hi"] h1,
+.paper[lang="mr"] h1 {
+  font-family: "Noto Serif Devanagari", serif;
+  line-height: 1.45;
 }
 
 .feature-card {

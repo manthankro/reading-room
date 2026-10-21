@@ -2,6 +2,7 @@ import { works, type Genre, type Shelf, type Work } from "./works.ts";
 import { originalWorks } from "./works-original.ts";
 import { wisdomWorks } from "./works-wisdom.ts";
 import { mythWorks } from "./works-myths.ts";
+import { regionalWorks } from "./works-regional.ts";
 
 /** Full shelf: classics + original fiction + wisdom + mythology. */
 export const catalogue: Work[] = [
@@ -9,6 +10,7 @@ export const catalogue: Work[] = [
   ...originalWorks,
   ...wisdomWorks,
   ...mythWorks,
+  ...regionalWorks,
 ];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
@@ -190,6 +192,12 @@ export const collections = [
     title: "Across the centuries",
     note: "Writing from before 1800, the 1800s, and the new century.",
     select: (work: Work) => work.year < 1800 || work.year >= 1900,
+  },
+  {
+    id: "regional-voices",
+    title: "Regional voices",
+    note: "Original stories in Marathi and Hindi, rooted in everyday places and memories.",
+    select: (work: Work) => work.language === "Marathi" || work.language === "Hindi",
   },
   {
     id: "poetry",

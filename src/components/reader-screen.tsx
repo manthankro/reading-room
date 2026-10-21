@@ -20,7 +20,7 @@ function genreForReader(work: { genres?: string[]; shelf: string }): string {
 }
 
 const lights: { value: Light; label: string; icon: typeof Lamp }[] = [
-  { value: "lamp", label: "Lamp", icon: Lamp },
+  { value: "lamp", label: "Paper", icon: Lamp },
   { value: "day", label: "Day", icon: Sun },
   { value: "night", label: "Night", icon: Moon },
 ];
@@ -311,7 +311,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <article className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16">
+      <article
+        lang={work.language === "Marathi" ? "mr" : work.language === "Hindi" ? "hi" : "en"}
+        className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16"
+      >
         {!focus ? (
           <div className="reader-cover-wrap">
             <div className="reader-cover"><StoryArtwork work={work} /></div>
@@ -360,7 +363,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
           className={`mx-auto mt-12 border-t pt-6 hairline ${poem ? "measure-narrow" : "measure-comfort"}`}
         >
           <p className="kicker sub">End</p>
-          <p className="sub mt-3 text-sm">Public domain.</p>
+          <p className="sub mt-3 text-sm">{work.language === "Marathi" || work.language === "Hindi" ? "Original story created for Reading Room." : "Free to read here; check rights before republishing."}</p>
           {!place?.finished ? (
             <button
               type="button"
