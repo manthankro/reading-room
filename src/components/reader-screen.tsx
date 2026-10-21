@@ -229,6 +229,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
   }
 
   async function shareStory() {
+    if (!work) return;
     const url = window.location.href;
     setShareMessage("");
     try {
