@@ -196,8 +196,8 @@ export const collections = [
   {
     id: "regional-voices",
     title: "Regional voices",
-    note: "Original stories in Marathi and Hindi, rooted in everyday places and memories.",
-    select: (work: Work) => work.language === "Marathi" || work.language === "Hindi",
+    note: "Original stories in Indian languages, rooted in everyday places and memories.",
+    select: (work: Work) => ["Marathi", "Hindi", "Gujarati", "Bengali", "Tamil", "Telugu", "Kannada", "Malayalam"].includes(work.language ?? ""),
   },
   {
     id: "poetry",
