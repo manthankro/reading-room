@@ -77,12 +77,16 @@ describe("catalogue", () => {
       const path = collections.find((item) => item.id === id);
       assert.ok(path, `missing ${id} reading path`);
       assert.ok(catalogue.some((work) => path.select(work) && work.genres?.includes(genre)));
+      assert.ok(catalogue.filter(path.select).length >= 2, `${id} should have several stories`);
     }
 
     for (const slug of [
       "manga-paper-moon-club",
       "manhwa-rooftop-garden",
       "isekai-second-sunrise",
+      "manga-midnight-bento",
+      "manhwa-blue-roof-signal",
+      "isekai-library-of-small-doors",
       "comic-schoolyard-kite-day",
       "comic-umbrella-orchestra",
     ]) {
