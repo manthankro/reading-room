@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Download, Search, Shuffle, Sparkles, Upload } from "lucide-react";
+import { BookOpen, Download, LayoutGrid, List, Search, Shuffle, Sparkles, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
@@ -51,6 +51,7 @@ export function LibraryScreen() {
   const [author, setAuthor] = useState("all");
   const [time, setTime] = useState("all");
   const [language, setLanguage] = useState("all");
+  const [view, setView] = useState<"grid" | "list">("grid");
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
   const [genreMood, setGenreMood] = useState("");
@@ -185,11 +186,11 @@ export function LibraryScreen() {
     <div className="shell" data-light="lamp">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-8 md:grid-cols-[17rem_minmax(0,1fr)] md:gap-16 md:px-8 md:py-12">
         <aside className="md:sticky md:top-10 md:self-start">
-          <p className="kicker">Private shelf</p>
+          <p className="kicker">Open library</p>
           <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
           <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
-            A quiet place for good writing. Keep your place on this device, or sign in to carry your
-            shelf with you.
+            A quiet place for everyone. Browse and read freely; your place stays on this device, and
+            signing in is optional.
           </p>
           <div className="mt-5 flex items-center gap-3">
             <SignedIn>
