@@ -12,6 +12,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const PREVIEW_PORT = 8081;
 const PREVIEW_HOST = "127.0.0.1";
@@ -78,4 +79,6 @@ async function main() {
   process.exitCode = args.action === "stop" ? ((await stop()) ? 0 : 1) : await restart();
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

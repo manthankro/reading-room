@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import nodemailer from "nodemailer";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { dbSource, getSql } from "@/lib/db";
@@ -53,11 +54,27 @@ type WriterApplicationRow = {
   submitted_at: string | Date;
 };
 
-function configuredEmail(): { to: string; from: string; apiKey: string } | null {
+type EmailConfig =
+  | { provider: "gmail"; to: string; from: string; user: string; appPassword: string }
+  | { provider: "resend"; to: string; from: string; apiKey: string };
+
+function configuredEmail(): EmailConfig | null {
   const to = process.env.WRITER_APPLICATION_EMAIL?.trim();
+  const smtpUser = process.env.GMAIL_SMTP_USER?.trim();
+  const appPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
+  if (to && smtpUser && appPassword) {
+    return {
+      provider: "gmail",
+      to,
+      user: smtpUser,
+      appPassword,
+      from: process.env.WRITER_APPLICATION_FROM?.trim() || `Reading Room <${smtpUser}>`,
+    };
+  }
+
   const from = process.env.WRITER_APPLICATION_FROM?.trim();
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  return to && from && apiKey ? { to, from, apiKey } : null;
+  return to && from && apiKey ? { provider: "resend", to, from, apiKey } : null;
 }
 
 function textList(value: string[] | string): string[] {
@@ -102,6 +119,24 @@ async function notifyOwner(application: WriterApplicationRow): Promise<Notificat
   ];
 
   try {
+    const subject = `New Reading Room Writer Application — ${safeName}`;
+    if (config.provider === "gmail") {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: { user: config.user, pass: config.appPassword },
+      });
+      await transporter.sendMail({
+        from: config.from,
+        to: config.to,
+        replyTo: application.contact_email,
+        subject,
+        text: lines.join("\n"),
+      });
+      return "sent";
+    }
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -111,7 +146,7 @@ async function notifyOwner(application: WriterApplicationRow): Promise<Notificat
       body: JSON.stringify({
         from: config.from,
         to: [config.to],
-        subject: `New Reading Room Writer Application — ${safeName}`,
+        subject,
         text: lines.join("\n"),
       }),
     });

@@ -1,20 +1,20 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { getDatabaseUrl } from "./database-url";
 
 /** Which database backend is active. */
 export type DbSource = "neon" | "pglite";
 
-// An empty/whitespace DATABASE_URL (an easy misconfig in deploy UIs) must mean
+// Empty/whitespace connection values (an easy misconfig in deploy UIs) mean
 // "unset" — otherwise production would silently run on the PGLite fallback.
-const rawDatabaseUrl =
-  typeof process !== "undefined" ? process.env.DATABASE_URL : undefined;
-const databaseUrl =
-  rawDatabaseUrl && rawDatabaseUrl.trim() ? rawDatabaseUrl : undefined;
+const databaseUrl = typeof process !== "undefined" ? getDatabaseUrl() : undefined;
 
 /**
- * Active backend: real **Neon** when `DATABASE_URL` is set (deployed / configured
+ * Active backend: real **Neon** when `DATABASE_URL` or the Vercel Neon integration's
+ * `POSTGRES_URL` is set (deployed / configured
  * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
  * the app has a working database even with nothing configured — the live preview
- * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ * included. Manual setups can use `DATABASE_URL`; Vercel's Neon integration is
+ * detected through `POSTGRES_URL`.
  */
 export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
 
