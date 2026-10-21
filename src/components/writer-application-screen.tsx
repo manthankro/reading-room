@@ -6,7 +6,7 @@ import { submitWriterApplication } from "@/lib/writer-applications";
 type FormState = "ready" | "sending" | "received" | "error";
 
 const fieldClass =
-  "mt-2 w-full rounded-xl border border-[var(--page-line)] bg-white/70 px-4 py-3 text-base text-[var(--page-fg)] placeholder:text-[var(--page-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]";
+  "mt-2 w-full rounded-xl border border-[var(--ui-line)] bg-[var(--ui-elev)] px-4 py-3 text-base text-[var(--ui-fg)] placeholder:text-[var(--ui-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]";
 
 export function WriterApplicationScreen() {
   const [state, setState] = useState<FormState>("ready");
