@@ -207,25 +207,25 @@ export const collections = [
   {
     id: "manga",
     title: "Manga adventures",
-    note: "Original Japanese-inspired panel stories, made for the Reading Room.",
+    note: "Follow a midnight food train and a paper-moon mystery in original panel stories.",
     select: (work: Work) => allGenresOf(work).includes("Manga"),
   },
   {
     id: "manhwa",
     title: "Manhwa stories",
-    note: "Original Korean-inspired illustrated journeys and character dramas.",
+    note: "Explore rooftop gardens, neighborhood signals, and the bonds they create.",
     select: (work: Work) => allGenresOf(work).includes("Manhwa"),
   },
   {
     id: "isekai",
     title: "Isekai worlds",
-    note: "Original portal fantasies about starting over in another world.",
+    note: "Step through a lost atlas or a library of tiny doors into new worlds.",
     select: (work: Work) => allGenresOf(work).includes("Isekai"),
   },
   {
     id: "historical",
     title: "Historical stories",
-    note: "Original fiction set in historic places, with its era named clearly.",
+    note: "Travel from ancient Pataliputra and medieval Hampi to nineteenth-century Pune and Surat.",
     select: (work: Work) => allGenresOf(work).includes("Historical"),
   },
   {
