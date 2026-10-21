@@ -1804,6 +1804,42 @@ body {
   }
 }
 
+/* Every reading surface follows the selected theme, including the older
+   editorial card styles that were originally tuned with fixed cream colors. */
+.feature-card,
+.mood-card,
+.genre-card,
+.volume,
+.daily-escape,
+.paper,
+.ambient-panel,
+.reader-translation,
+.writer-textarea {
+  border-color: var(--ui-line);
+  background: var(--ui-elev);
+  color: var(--ui-fg);
+}
+
+.paper {
+  background: color-mix(in oklab, var(--ui-elev) 92%, var(--ui-bg));
+}
+
+.mood-card.is-selected,
+.genre-card[aria-pressed="true"],
+.collection-card[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--color-accent) 72%, var(--ui-line));
+  background: color-mix(in srgb, var(--ui-elev) 84%, var(--color-accent) 16%);
+  color: var(--ui-fg);
+}
+
+.genre-card[aria-pressed="true"] .muted {
+  color: var(--ui-muted);
+}
+
+.library-sidebar > a:hover {
+  background: var(--ui-elev);
+}
+
 /* Keep shelf and story titles legible in both persistent themes. */
 .collection-card,
 .story-card {
