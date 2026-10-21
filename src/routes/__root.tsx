@@ -18,7 +18,7 @@ export const Route = createRootRoute({
         content:
           "A private shelf for slow reading. Public-domain stories, essays, poems, and letters.",
       },
-      { name: "theme-color", content: "#121110" },
+      { name: "theme-color", content: "#f4f0e6" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
