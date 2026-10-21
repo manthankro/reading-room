@@ -6,6 +6,8 @@ A calm, private shelf for short reading: stories, essays, poems, letters, comics
 
 Browse a catalogue of public-domain classics and original works. Your reading progress, bookmarks, highlights, and notes stay in your browser by default. Sign in only when you want to sync your shelf across devices.
 
+The shelf uses an editorial, responsive layout across desktop, tablet, and phone, with locally rendered artwork tailored to each story and genre.
+
 ## Features
 
 - Search and filter by genre, form, author, period, language, and reading time
