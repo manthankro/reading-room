@@ -191,136 +191,7 @@ export function LibraryScreen() {
   return (
     <div className="shell" data-light="lamp">
       <div className="mx-auto grid w-full max-w-[90rem] gap-6 px-4 py-6 sm:px-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8 md:px-8 md:py-10 xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:gap-12">
-        <aside className="library-sidebar order-2 md:order-1 md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
-          <p className="kicker">Open library</p>
-          <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
-          <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
-            A quiet place for everyone. Browse and read freely; your place stays on this device, and
-            signing in is optional.
-          </p>
-          <div className="mt-5 flex items-center gap-3">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <Link to="/login" className="btn btn-quiet">
-                Sign in to sync
-              </Link>
-            </SignedOut>
-            <span className="text-xs muted">Optional account</span>
-          </div>
-          <dl className="mt-8 grid grid-cols-3 gap-3 border-t hairline pt-5">
-            <div>
-              <dt className="kicker">Minutes</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {minuteCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="kicker">Finished</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {hydrated ? finishedCount : 0}
-              </dd>
-            </div>
-            <div>
-              <dt className="kicker">Saved</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {hydrated ? bookmarks.length + highlights.length : 0}
-              </dd>
-            </div>
-          </dl>
-          <div className="mt-7 border-t hairline pt-5">
-            <div className="flex items-center justify-between">
-              <p className="kicker">Today’s reading goal</p>
-              <label className="sr-only" htmlFor="goal-minutes">
-                Daily goal in minutes
-              </label>
-              <select
-                id="goal-minutes"
-                className="select-field compact"
-                value={goalMinutes}
-                onChange={(event) => setGoalMinutes(Number(event.target.value))}
-              >
-                <option value={10}>10 min</option>
-                <option value={20}>20 min</option>
-                <option value={30}>30 min</option>
-                <option value={45}>45 min</option>
-                <option value={60}>60 min</option>
-              </select>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between font-reading">
-              <span className="text-2xl tabular-nums">
-                {todayMinutes}
-                <span className="text-base muted"> / {goalMinutes} min</span>
-              </span>
-              <span className="text-sm muted">
-                {Math.min(100, Math.round((todayMinutes / goalMinutes) * 100))}%
-              </span>
-            </div>
-            <div className="track mt-3">
-              <span style={{ width: `${Math.min(100, (todayMinutes / goalMinutes) * 100)}%` }} />
-            </div>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button type="button" className="btn btn-quiet px-3" onClick={exportShelf}>
-              <Download className="size-4" aria-hidden /> Backup
-            </button>
-            <button
-              type="button"
-              className="btn btn-quiet px-3"
-              onClick={() => importRef.current?.click()}
-            >
-              <Upload className="size-4" aria-hidden /> Restore
-            </button>
-            <input
-              ref={importRef}
-              type="file"
-              accept="application/json,.json"
-              className="sr-only"
-              onChange={(event) => void importShelf(event.currentTarget.files?.[0])}
-            />
-          </div>
-          {message ? (
-            <p role="status" className="mt-3 text-sm muted">
-              {message}
-            </p>
-          ) : null}
-          <p className="mt-5 text-sm muted">
-            {catalogue.length} volumes · {notes.length} margin notes ·{" "}
-            {formatMinutes(totalSeconds(seconds))} together
-          </p>
-          <Link
-            to="/writers"
-            className="mt-6 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
-          >
-            <span className="kicker">For writers</span>
-            <span className="mt-2 block font-reading text-xl">Become a content writer</span>
-            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
-          </Link>
-          {bookmarks.length ? (
-            <section className="mt-8 border-t hairline pt-5">
-              <h2 className="kicker">Your bookmarks</h2>
-              <ul className="mt-3 space-y-2">
-                {bookmarks.slice(0, 5).map((bookmark) => {
-                  const work = getWork(bookmark.slug);
-                  return work ? (
-                    <li key={bookmark.id}>
-                      <Link
-                        to="/read/$slug"
-                        params={{ slug: work.slug }}
-                        className="text-sm underline underline-offset-4"
-                      >
-                        {work.title} · page {bookmark.index + 1}
-                      </Link>
-                    </li>
-                  ) : null;
-                })}
-              </ul>
-            </section>
-          ) : null}
-        </aside>
-
-        <main className="library-main order-1 min-w-0 md:order-2">
+        <main className="library-main min-w-0 md:col-start-2 md:row-start-1">
           <header className="mb-7 rounded-2xl border hairline elev px-5 py-6 sm:px-8 sm:py-8">
             <p className="kicker">A reading room for everyone</p>
             <h2 className="mt-3 max-w-2xl font-reading text-3xl leading-tight sm:text-4xl">Leave the noise. Enter a story.</h2>
@@ -614,6 +485,135 @@ export function LibraryScreen() {
             </div>
           ) : null}
         </main>
+
+        <aside className="library-sidebar md:col-start-1 md:row-start-1 md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
+          <p className="kicker">Open library</p>
+          <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
+          <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
+            A quiet place for everyone. Browse and read freely; your place stays on this device, and
+            signing in is optional.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+            <SignedOut>
+              <Link to="/login" className="btn btn-quiet">
+                Sign in to sync
+              </Link>
+            </SignedOut>
+            <span className="text-xs muted">Optional account</span>
+          </div>
+          <dl className="mt-8 grid grid-cols-3 gap-3 border-t hairline pt-5">
+            <div>
+              <dt className="kicker">Minutes</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {minuteCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="kicker">Finished</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {hydrated ? finishedCount : 0}
+              </dd>
+            </div>
+            <div>
+              <dt className="kicker">Saved</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {hydrated ? bookmarks.length + highlights.length : 0}
+              </dd>
+            </div>
+          </dl>
+          <div className="mt-7 border-t hairline pt-5">
+            <div className="flex items-center justify-between">
+              <p className="kicker">Today’s reading goal</p>
+              <label className="sr-only" htmlFor="goal-minutes">
+                Daily goal in minutes
+              </label>
+              <select
+                id="goal-minutes"
+                className="select-field compact"
+                value={goalMinutes}
+                onChange={(event) => setGoalMinutes(Number(event.target.value))}
+              >
+                <option value={10}>10 min</option>
+                <option value={20}>20 min</option>
+                <option value={30}>30 min</option>
+                <option value={45}>45 min</option>
+                <option value={60}>60 min</option>
+              </select>
+            </div>
+            <div className="mt-4 flex items-baseline justify-between font-reading">
+              <span className="text-2xl tabular-nums">
+                {todayMinutes}
+                <span className="text-base muted"> / {goalMinutes} min</span>
+              </span>
+              <span className="text-sm muted">
+                {Math.min(100, Math.round((todayMinutes / goalMinutes) * 100))}%
+              </span>
+            </div>
+            <div className="track mt-3">
+              <span style={{ width: `${Math.min(100, (todayMinutes / goalMinutes) * 100)}%` }} />
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button type="button" className="btn btn-quiet px-3" onClick={exportShelf}>
+              <Download className="size-4" aria-hidden /> Backup
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet px-3"
+              onClick={() => importRef.current?.click()}
+            >
+              <Upload className="size-4" aria-hidden /> Restore
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={(event) => void importShelf(event.currentTarget.files?.[0])}
+            />
+          </div>
+          {message ? (
+            <p role="status" className="mt-3 text-sm muted">
+              {message}
+            </p>
+          ) : null}
+          <p className="mt-5 text-sm muted">
+            {catalogue.length} volumes · {notes.length} margin notes ·{" "}
+            {formatMinutes(totalSeconds(seconds))} together
+          </p>
+          <Link
+            to="/writers"
+            className="mt-6 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
+          >
+            <span className="kicker">For writers</span>
+            <span className="mt-2 block font-reading text-xl">Become a content writer</span>
+            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
+          </Link>
+          {bookmarks.length ? (
+            <section className="mt-8 border-t hairline pt-5">
+              <h2 className="kicker">Your bookmarks</h2>
+              <ul className="mt-3 space-y-2">
+                {bookmarks.slice(0, 5).map((bookmark) => {
+                  const work = getWork(bookmark.slug);
+                  return work ? (
+                    <li key={bookmark.id}>
+                      <Link
+                        to="/read/$slug"
+                        params={{ slug: work.slug }}
+                        className="text-sm underline underline-offset-4"
+                      >
+                        {work.title} · page {bookmark.index + 1}
+                      </Link>
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </section>
+          ) : null}
+        </aside>
       </div>
     </div>
   );
