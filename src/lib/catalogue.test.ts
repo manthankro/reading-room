@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   catalogue,
   comicPanels,
+  compareTitlesAZ,
   collections,
   genreFor,
   getWork,
@@ -30,6 +31,17 @@ describe("catalogue", () => {
     const sample = catalogue[0];
     assert.equal(getWork(sample.slug)?.title, sample.title);
     assert.equal(getWork("does-not-exist-xyz"), undefined);
+  });
+
+  it("sorts letter titles in natural A–Z order", () => {
+    const letters = catalogue.filter((work) => work.shelf === "letter");
+    const sorted = [...letters].sort(compareTitlesAZ);
+    assert.ok(sorted.length > 0);
+    assert.ok(sorted.every((work, index) => index === 0 || compareTitlesAZ(sorted[index - 1], work) <= 0));
+    assert.deepEqual(
+      ["Letter 10", "letter 2", "A letter"].sort((a, b) => compareTitlesAZ({ title: a }, { title: b })),
+      ["A letter", "letter 2", "Letter 10"],
+    );
   });
 
   it("exposes primary genres for filters", () => {
