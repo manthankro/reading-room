@@ -455,10 +455,18 @@
 
 .comic-spread {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.25rem;
 }
 
+@media (min-width: 48rem) {
+  .comic-spread {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .comic-frame {
+  position: relative;
   display: grid;
   min-height: 18rem;
   grid-template-rows: 1fr auto;
@@ -469,7 +477,15 @@
 }
 
 .comic-scene {
+  display: flex;
+  min-height: 17rem;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
   padding: 1.35rem 1.35rem 0.5rem;
+  background:
+    radial-gradient(ellipse at 82% 16%, color-mix(in oklab, var(--page-fg) 10%, transparent) 0 20%, transparent 21%),
+    linear-gradient(135deg, color-mix(in oklab, var(--page-fg) 5%, transparent), transparent 58%);
 }
 
 .comic-scene strong {
@@ -481,6 +497,32 @@
   line-height: 1.25;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.comic-panel-number {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.8rem;
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  opacity: 0.72;
+}
+
+.comic-spread .comic-frame:nth-child(3n + 1) .comic-scene {
+  background-color: color-mix(in oklab, #d3a452 13%, var(--page-bg, transparent));
+}
+
+.comic-spread .comic-frame:nth-child(3n + 2) .comic-scene {
+  background-color: color-mix(in oklab, #608c87 12%, var(--page-bg, transparent));
+}
+
+.comic-spread .comic-frame:nth-child(3n) .comic-scene {
+  background-color: color-mix(in oklab, #bd694e 11%, var(--page-bg, transparent));
 }
 
 .balloon {
