@@ -6,6 +6,8 @@ export type Genre =
   | "Adventure"
   | "Drama"
   | "Comics"
+  | "Mystery"
+  | "Science fiction"
   | "Comedy"
   | "Thriller"
   | "Horror"
@@ -18,6 +20,7 @@ export type Genre =
   | "Motivational"
   | "Psychological"
   | "Health"
+  | "Sports"
   | "Mythology"
   | "Song";
 
