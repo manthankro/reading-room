@@ -1803,3 +1803,79 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Keep shelf and story titles legible in both persistent themes. */
+.collection-card,
+.story-card {
+  border-color: var(--ui-line);
+  background: var(--ui-elev);
+  color: var(--ui-fg);
+}
+
+.collection-card[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ui-elev) 78%, var(--color-accent) 22%);
+  color: var(--ui-fg);
+}
+
+.collection-card:hover,
+.collection-card:focus-visible,
+.story-card:hover,
+.story-card:focus-visible {
+  border-color: color-mix(in srgb, var(--color-accent) 65%, var(--ui-line));
+}
+
+.path-copy,
+.path-copy > span:first-child,
+.story-card-body,
+.story-card-body h3 {
+  color: var(--ui-fg);
+}
+
+.path-cover {
+  border-color: var(--ui-line);
+}
+
+.hero-cover-caption {
+  color: #28362b;
+}
+
+.hero-cover-author {
+  color: #5e625b;
+}
+
+.story-card-body h3 {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+@media (max-width: 767px) {
+  .path-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .more-paths .path-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .collection-card {
+    min-height: 6.6rem;
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .path-copy > span:first-child {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .path-copy > span:last-child {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .story-card-body h3 {
+    font-size: clamp(1rem, 4vw, 1.18rem);
+    line-height: 1.25;
+  }
+}

@@ -90,7 +90,7 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
   const sports = /sports|cricket|football|kabaddi|race|marathon|rowing|run|match/.test(
     title + " " + genres,
   );
-  const anime = /anime|manga/.test(title + " " + genres);
+  const anime = /anime|manga|manhwa|isekai/.test(title + " " + genres);
   const adventure = /adventure|journey|voyage|travel|quest|expedition|island/.test(
     title + " " + genres,
   );

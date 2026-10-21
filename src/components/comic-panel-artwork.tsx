@@ -257,6 +257,39 @@ export function ComicPanelArtwork({
           />
         </g>
       ) : null}
+      {/kite|paper moon/.test(setting) ? (
+        <g transform={`translate(${485 + (seed % 34)} ${70 + (seed % 24)})`}>
+          <path
+            d="M0 -52L42 0 0 55 -42 0Z"
+            fill="#ef8a67"
+            stroke="#34324b"
+            strokeWidth="5"
+          />
+          <path d="M-42 0H42M0 -52V55" stroke="#f5dfac" strokeWidth="4" />
+          <path d="M0 55Q-24 91 10 112T-4 158" fill="none" stroke="#34324b" strokeWidth="3" />
+          <path d="M-3 85l14 10-14 10-10-10ZM0 126l13 9-13 10-11-10Z" fill="#e8cf83" />
+        </g>
+      ) : null}
+      {/umbrella|raindrop|rain|monsoon/.test(setting) ? (
+        <g transform={`translate(${480 + (seed % 30)} ${170 + (seed % 18)})`}>
+          <path
+            d="M-64 0Q-54 -65 0 -69Q54 -65 64 0Q32 -18 0 0Q-32 -18 -64 0Z"
+            fill="#e6a75e"
+            stroke="#37314a"
+            strokeWidth="6"
+          />
+          <path d="M0 -67V0M-42 -43L0 0M42 -43L0 0" stroke="#fff0c6" strokeWidth="3" />
+          <path d="M0 0V62Q0 83 18 78" fill="none" stroke="#37314a" strokeWidth="7" />
+          <path d="M-64 26l-5 16m28 -22-5 16m88 -10-5 16m34 -20-5 16" stroke="#8acbd0" strokeWidth="5" strokeLinecap="round" />
+        </g>
+      ) : null}
+      {/stone|inscription|chisel|scribe|letter|map|chart/.test(setting) ? (
+        <g transform={`translate(${485 + (seed % 24)} 208)`}>
+          <path d="M-54 -68H42L58 -50V112H-54Z" fill="#d8c49a" stroke="#574a48" strokeWidth="6" />
+          <path d="M-32 -35H30M-32 -5H25M-32 25H34M-32 55H12" stroke="#816d5c" strokeWidth="5" strokeLinecap="round" />
+          <path d="M44 -68V-48H58" fill="none" stroke="#574a48" strokeWidth="5" />
+        </g>
+      ) : null}
       {person(left, colors[3])}
       {person(right, colors[2], true)}
       {index % 3 === 1 ? (
