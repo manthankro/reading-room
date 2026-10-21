@@ -165,6 +165,7 @@ export function LibraryScreen() {
           >
             <a href="#collection">Explore the library</a>
             <Link to="/writers">For writers</Link>
+            <a href="/mahabharata">Mahabharata</a>
           </nav>
           <div className="masthead-account">
             <Link
@@ -208,6 +209,9 @@ export function LibraryScreen() {
                   </Link>
                   <a href="#collection" className="hero-browse-link">
                     Browse the library <ArrowDown className="size-4" aria-hidden />
+                  </a>
+                  <a href="/mahabharata" className="hero-browse-link">
+                    Read the Mahabharata <span aria-hidden="true">↗</span>
                   </a>
                 </div>
                 <p className="hero-feature-meta">
