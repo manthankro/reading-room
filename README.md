@@ -63,7 +63,7 @@ Most readers can use the app without environment variables. To enable deployed s
 
 Writer applications require these server-side Vercel environment variables:
 
-- `DATABASE_URL` — persistent Postgres storage for submitted applications
+- `DATABASE_URL` — persistent Postgres storage for submitted applications; the Vercel Neon integration's `POSTGRES_URL` is also accepted automatically
 - `WRITER_APPLICATION_EMAIL` — verified team inbox for application notifications
 - `WRITER_APPLICATION_FROM` — verified sender address accepted by Resend
 - `RESEND_API_KEY` — Resend API key, stored only as a server secret
