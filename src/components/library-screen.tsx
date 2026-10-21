@@ -282,6 +282,14 @@ export function LibraryScreen() {
             {catalogue.length} volumes · {notes.length} margin notes ·{" "}
             {formatMinutes(totalSeconds(seconds))} together
           </p>
+          <Link
+            to="/writers"
+            className="mt-6 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
+          >
+            <span className="kicker">For writers</span>
+            <span className="mt-2 block font-reading text-xl">Become a content writer</span>
+            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
+          </Link>
           {bookmarks.length ? (
             <section className="mt-8 border-t hairline pt-5">
               <h2 className="kicker">Your bookmarks</h2>
