@@ -4,6 +4,7 @@ import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Sun, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { getWork, readingMinutes } from "@/lib/library";
 import { StoryArtwork } from "@/components/story-artwork";
+import { languageTagFor } from "@/lib/language";
 import {
   formatMinutes,
   useReadingStore,
@@ -312,7 +313,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
       </header>
 
       <article
-        lang={work.language === "Marathi" ? "mr" : work.language === "Hindi" ? "hi" : "en"}
+        lang={languageTagFor(work.language)}
         className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16"
       >
         {!focus ? (
@@ -363,7 +364,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
           className={`mx-auto mt-12 border-t pt-6 hairline ${poem ? "measure-narrow" : "measure-comfort"}`}
         >
           <p className="kicker sub">End</p>
-          <p className="sub mt-3 text-sm">{work.language === "Marathi" || work.language === "Hindi" ? "Original story created for Reading Room." : "Free to read here; check rights before republishing."}</p>
+          <p className="sub mt-3 text-sm">{["Marathi", "Hindi", "Gujarati", "Bengali", "Tamil", "Telugu", "Kannada", "Malayalam"].includes(work.language ?? "") ? "Original story created for Reading Room." : "Free to read here; check rights before republishing."}</p>
           {!place?.finished ? (
             <button
               type="button"
