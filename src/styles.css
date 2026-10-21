@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-reading: "Newsreader", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  --font-ui: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  --font-reading: "Newsreader", "Noto Serif Devanagari", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  --font-ui: "Outfit", "Noto Sans Devanagari", "Avenir Next", "Segoe UI", sans-serif;
 
   --color-accent: #8c3d32;
   --color-accent-fg: #f7f1e7;
@@ -348,6 +348,18 @@
 
 .reader p {
   margin: 0 0 1.15em;
+}
+
+.paper[lang="hi"] [data-readable],
+.paper[lang="mr"] [data-readable] {
+  font-family: "Noto Serif Devanagari", serif;
+  line-height: 1.9;
+}
+
+.paper[lang="hi"] h1,
+.paper[lang="mr"] h1 {
+  font-family: "Noto Serif Devanagari", serif;
+  line-height: 1.45;
 }
 
 .feature-card {
