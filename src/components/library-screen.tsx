@@ -184,8 +184,8 @@ export function LibraryScreen() {
 
   return (
     <div className="shell" data-light="lamp">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-8 md:grid-cols-[17rem_minmax(0,1fr)] md:gap-16 md:px-8 md:py-12">
-        <aside className="md:sticky md:top-10 md:self-start">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-6 px-4 py-6 sm:px-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8 md:px-8 md:py-10 xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:gap-12">
+        <aside className="md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
           <p className="kicker">Open library</p>
           <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
           <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
