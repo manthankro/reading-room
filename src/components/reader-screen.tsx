@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Sun, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { getWork, readingMinutes } from "@/lib/library";
+import { StoryArtwork } from "@/components/story-artwork";
 import {
   formatMinutes,
   useReadingStore,
@@ -13,6 +14,10 @@ import {
 } from "@/lib/reading-store";
 
 type Anchor = { text: string; top: number; left: number };
+
+function genreForReader(work: { genres?: string[]; shelf: string }): string {
+  return work.genres?.[0] ?? (work.shelf === "poem" ? "Poetry" : work.shelf === "essay" ? "Essay" : work.shelf === "letter" ? "Letter" : "Short fiction");
+}
 
 const lights: { value: Light; label: string; icon: typeof Lamp }[] = [
   { value: "lamp", label: "Lamp", icon: Lamp },
@@ -307,14 +312,37 @@ export function ReaderScreen({ slug }: { slug: string }) {
       </header>
 
       <article className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16">
+        {!focus ? (
+          <div className="reader-cover-wrap">
+            <div className="reader-cover"><StoryArtwork work={work} /></div>
+            <p className="reader-cover-caption">{genreForReader(work)} · {work.language ?? "English"}</p>
+          </div>
+        ) : null}
         <header className={poem ? "measure-narrow mx-auto" : "measure-comfort mx-auto"}>
           <p className="kicker sub">{work.author}</p>
           <h1 className="mt-3 font-reading text-4xl leading-tight">{work.title}</h1>
           <p className="sub mt-3 text-sm">
-            {work.year} · {readingMinutes(work)} min
+            {work.year} · {work.language ?? "English"} · {readingMinutes(work)} min read
             {seconds >= 30 ? ` · ${formatMinutes(seconds)} with you` : ""}
             {place ? ` · ${place.finished ? "finished" : `${remaining} min left`}` : ""}
           </p>
+          <label className="reader-jump mt-5 block">
+            <span className="kicker">Jump to passage</span>
+            <select
+              className="select-field mt-2 w-full"
+              defaultValue=""
+              onChange={(event) => {
+                if (!event.currentTarget.value) return;
+                document.getElementById(event.currentTarget.value)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                event.currentTarget.value = "";
+              }}
+            >
+              <option value="">Choose a passage…</option>
+              {work.paragraphs.map((paragraph, index) => (
+                <option key={index} value={`p-${index}`}>{`Passage ${index + 1}: ${paragraph.slice(0, 68).trim()}…`}</option>
+              ))}
+            </select>
+          </label>
         </header>
 
         <div

@@ -29,6 +29,10 @@ export type Work = {
   shelf: Shelf;
   /** One or more genres; first entry is the primary filter label. */
   genres?: Genre[];
+  /** Display language for multilingual catalogue entries; defaults to English for existing works. */
+  language?: string;
+  /** Optional persistent cover URL, when an editorial cover is supplied for this work. */
+  coverImage?: string;
   paragraphs: string[];
 };
 
