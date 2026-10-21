@@ -203,6 +203,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const percent = Math.round(ratio * 100);
   const remaining = Math.max(1, Math.round(readingMinutes(work) * (1 - ratio)));
   const poem = work.shelf === "poem";
+  const comic = work.genres?.includes("Comics") ?? false;
 
   function openNotes(quote?: string) {
     setNotesClosing(false);
@@ -382,13 +383,23 @@ export function ReaderScreen({ slug }: { slug: string }) {
 
         <div
           data-readable
-          className={`mx-auto mt-10 font-reading ${poem ? "poem" : "prose"} measure-${measure} size-${size} lead-${leading}`}
+          className={`mx-auto mt-10 font-reading ${poem ? "poem" : "prose"} measure-${measure} size-${size} lead-${leading} ${comic ? "comic-spread" : ""}`}
         >
-          {work.paragraphs.map((paragraph, index) => (
-            <p id={`p-${index}`} data-p={index} key={`${work.slug}-${index}`}>
-              {paragraph}
-            </p>
-          ))}
+          {work.paragraphs.map((paragraph, index) =>
+            comic ? (
+              <section id={`p-${index}`} data-p={index} className="comic-frame" key={`${work.slug}-${index}`} aria-label={`Comic panel ${index + 1}`}>
+                <div className="comic-scene">
+                  <span className="kicker">Panel {String(index + 1).padStart(2, "0")}</span>
+                  <strong>{paragraph.replace(/^(?:Panel|पैनल|પેનલ|প্যানেল|பலகம்|ప్యానెల్|ಫಲಕ|പാനൽ)\s*[\p{N}]+\s*:\s*/iu, "")}</strong>
+                </div>
+                <span className="comic-panel-number" aria-hidden="true">{index + 1}</span>
+              </section>
+            ) : (
+              <p id={`p-${index}`} data-p={index} key={`${work.slug}-${index}`}>
+                {paragraph}
+              </p>
+            ),
+          )}
         </div>
 
         <footer
