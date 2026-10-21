@@ -38,6 +38,10 @@ const artDirections = {
     ["#242c3a", "#c0ab79", "#5f7c7d", "#e8e2d2"],
     ["#2c3340", "#c5ae7c", "#688381", "#e8e1d1"],
   ],
+  sports: [
+    ["#193b3d", "#e0bd78", "#c66f43", "#f2e7d1"],
+    ["#263951", "#d8ba78", "#b75f4b", "#f3ead8"],
+  ],
   poetry: [
     ["#3a3932", "#d5c69a", "#87917d", "#f0e9d8"],
     ["#464237", "#d1c19a", "#899486", "#f3eddf"],
@@ -79,6 +83,9 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
   const science = /science fiction|sci.fi|space|robot|machine|future|planet|cosmic/.test(
     title + " " + genres,
   );
+  const sports = /sports|cricket|football|kabaddi|race|marathon|rowing|run|match/.test(
+    title + " " + genres,
+  );
   const adventure = /adventure|journey|voyage|travel|quest|expedition|island/.test(
     title + " " + genres,
   );
@@ -100,7 +107,9 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
             ? "mystery"
             : science
               ? "science"
-              : romance
+              : sports
+                ? "sports"
+                : romance
                 ? "romance"
                 : myth
                   ? "myth"

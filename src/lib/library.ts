@@ -3,6 +3,8 @@ import { originalWorks } from "./works-original.ts";
 import { wisdomWorks } from "./works-wisdom.ts";
 import { mythWorks } from "./works-myths.ts";
 import { regionalWorks } from "./works-regional.ts";
+import { comicsAndSportsWorks } from "./works-comics-sports.ts";
+import { mahabharataWorks } from "./works-mahabharata.ts";
 
 /** Full shelf: classics + original fiction + wisdom + mythology. */
 export const catalogue: Work[] = [
@@ -11,6 +13,8 @@ export const catalogue: Work[] = [
   ...wisdomWorks,
   ...mythWorks,
   ...regionalWorks,
+  ...comicsAndSportsWorks,
+  ...mahabharataWorks,
 ];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
@@ -160,8 +164,14 @@ export const collections = [
   {
     id: "panels",
     title: "Comics",
-    note: "Panel-by-panel shorts for a quick turn of the page.",
+    note: "Comedy, mystery, adventure, science fiction, and regional panel stories.",
     select: (work: Work) => allGenresOf(work).includes("Comics"),
+  },
+  {
+    id: "sports",
+    title: "Sports stories",
+    note: "Teamwork, comebacks, and neighborhood games told across Indian languages.",
+    select: (work: Work) => allGenresOf(work).includes("Sports"),
   },
   {
     id: "lift",
@@ -192,6 +202,12 @@ export const collections = [
     title: "Mythology",
     note: "Long retellings from Greece, Egypt, India, Rome, China, Japan, and beyond.",
     select: (work: Work) => allGenresOf(work).includes("Mythology"),
+  },
+  {
+    id: "mahabharata",
+    title: "The Mahabharata · 18 parvas",
+    note: "A chapter-by-chapter prose retelling, from the family’s beginnings to the final ascent.",
+    select: (work: Work) => work.slug.startsWith("mahabharata-"),
   },
   {
     id: "century",
