@@ -99,6 +99,11 @@ export function WriterApplicationScreen() {
                 Do you write fiction, poetry, folklore, or stories in your own language? Tell us a
                 little about your work and why you’d like to contribute.
               </p>
+              <p className="muted mt-3 max-w-2xl text-sm leading-relaxed">
+                Writers of every experience level are welcome. We are building original reading in
+                English, Hindi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, Malayalam, and
+                more. Questions? <a className="underline underline-offset-4" href="mailto:pramanixlabs@gmail.com">Contact PramanixLabs</a>.
+              </p>
             </header>
 
             <form className="paper mt-8 rounded-2xl p-5 sm:p-9" onSubmit={submit}>
