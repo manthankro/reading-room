@@ -17,6 +17,7 @@ Browse a catalogue of public-domain classics and original works. Your reading pr
 - Reader themes and controls for type size, line spacing, and reading width
 - Local bookmarks, highlights, margin notes, daily goals, and backup/restore
 - Optional account sync
+- Writer applications for regional and multilingual storytellers, with a private administrator review area
 - Installable PWA with share cards and an install guide
 
 ## Run locally
@@ -56,6 +57,17 @@ The catalogue is stored in TypeScript modules under `src/lib/`. Reading data is 
 ## Configuration
 
 Most readers can use the app without environment variables. To enable deployed sign-in and cross-device sync, configure the Better Auth provider credentials and a Postgres `DATABASE_URL` in the deployment environment. Keep secrets server-side and out of the repository.
+
+Writer applications require these server-side Vercel environment variables:
+
+- `DATABASE_URL` — persistent Postgres storage for submitted applications
+- `WRITER_APPLICATION_EMAIL` — verified team inbox for application notifications
+- `WRITER_APPLICATION_FROM` — verified sender address accepted by Resend
+- `RESEND_API_KEY` — Resend API key, stored only as a server secret
+- `WRITER_ADMIN_EMAILS` — comma-separated email addresses allowed to access `/admin/writers`; each must match a verified signed-in account
+- `APP_BASE_URL` — public site URL used in notification links
+
+Configure these in Vercel for Preview and Production. Never commit actual values. The application form saves entries to Postgres first; if email is unavailable, the entry remains saved and an administrator can retry the notification from the private review area. To make a user an administrator, add their email to `WRITER_ADMIN_EMAILS` and have them sign in with that verified email.
 
 The app can also receive `VITE_*` settings at build time. Only use that prefix for values that are safe to expose to the browser.
 
