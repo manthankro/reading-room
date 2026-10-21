@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-reading: "Newsreader", "Noto Serif Devanagari", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
-  --font-ui: "Outfit", "Noto Sans Devanagari", "Avenir Next", "Segoe UI", sans-serif;
+  --font-reading: "Newsreader", "Noto Serif Devanagari", "Noto Serif Bengali", "Noto Serif Gujarati", "Noto Serif Tamil", "Noto Serif Telugu", "Noto Serif Kannada", "Noto Serif Malayalam", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
+  --font-ui: "Outfit", "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Gujarati", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Malayalam", "Avenir Next", "Segoe UI", sans-serif;
 
   --color-accent: #3f6b50;
   --color-accent-fg: #f7f4eb;
@@ -356,11 +356,24 @@
   line-height: 1.9;
 }
 
+.paper[lang="gu"] [data-readable] { font-family: "Noto Serif Gujarati", serif; line-height: 1.85; }
+.paper[lang="bn"] [data-readable] { font-family: "Noto Serif Bengali", serif; line-height: 1.85; }
+.paper[lang="ta"] [data-readable] { font-family: "Noto Serif Tamil", serif; line-height: 1.85; }
+.paper[lang="te"] [data-readable] { font-family: "Noto Serif Telugu", serif; line-height: 1.85; }
+.paper[lang="kn"] [data-readable] { font-family: "Noto Serif Kannada", serif; line-height: 1.85; }
+.paper[lang="ml"] [data-readable] { font-family: "Noto Serif Malayalam", serif; line-height: 1.85; }
+
 .paper[lang="hi"] h1,
 .paper[lang="mr"] h1 {
   font-family: "Noto Serif Devanagari", serif;
   line-height: 1.45;
 }
+.paper[lang="gu"] h1 { font-family: "Noto Serif Gujarati", serif; line-height: 1.45; }
+.paper[lang="bn"] h1 { font-family: "Noto Serif Bengali", serif; line-height: 1.45; }
+.paper[lang="ta"] h1 { font-family: "Noto Serif Tamil", serif; line-height: 1.45; }
+.paper[lang="te"] h1 { font-family: "Noto Serif Telugu", serif; line-height: 1.45; }
+.paper[lang="kn"] h1 { font-family: "Noto Serif Kannada", serif; line-height: 1.45; }
+.paper[lang="ml"] h1 { font-family: "Noto Serif Malayalam", serif; line-height: 1.45; }
 
 .feature-card {
   border-radius: var(--radius-lg);
