@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, LayoutGrid, List, Search, Shuffle, Sparkles } from "lucide-react";
+import { ArrowDown, BookOpen, LayoutGrid, List, Search, Shuffle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
+import { UserButton } from "@/lib/auth/gates";
 import {
   catalogue,
   collections,
@@ -16,11 +16,7 @@ import {
   shelfOrder,
   shelfSequence,
 } from "@/lib/library";
-import {
-  formatMinutes,
-  totalSeconds,
-  useReadingStore,
-} from "@/lib/reading-store";
+import { formatMinutes, totalSeconds, useReadingStore } from "@/lib/reading-store";
 import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
 import { languageTagFor } from "@/lib/language";
@@ -76,13 +72,24 @@ export function LibraryScreen() {
   const filtered = useMemo(() => {
     let result = catalogue.filter((work) => {
       if (genreMood) {
-        const searchable = `${work.title} ${work.author} ${(work.genres ?? []).join(" ")}`.toLocaleLowerCase();
+        const searchable =
+          `${work.title} ${work.author} ${(work.genres ?? []).join(" ")}`.toLocaleLowerCase();
         const matchesMood =
-          (genreMood === "mystery" && /horror|thriller|gothic|mystery|ghost|haunt|secret|shadow/.test(searchable)) ||
-          (genreMood === "myth" && /mythology|myth|persephone|orpheus|prometheus|odin|isis|rama|osiris|gods|goddess|adventure/.test(searchable)) ||
-          (genreMood === "romance" && /love story|romance|heart|love|magi|marriage|belong/.test(searchable)) ||
-          (genreMood === "quiet" && (work.shelf === "poem" || work.shelf === "essay" || work.shelf === "letter" || /psychological|health|drama/.test(searchable))) ||
-          (genreMood === "wonder" && /adventure|comics|mythology|fantasy|science|journey/.test(searchable));
+          (genreMood === "mystery" &&
+            /horror|thriller|gothic|mystery|ghost|haunt|secret|shadow/.test(searchable)) ||
+          (genreMood === "myth" &&
+            /mythology|myth|persephone|orpheus|prometheus|odin|isis|rama|osiris|gods|goddess|adventure/.test(
+              searchable,
+            )) ||
+          (genreMood === "romance" &&
+            /love story|romance|heart|love|magi|marriage|belong/.test(searchable)) ||
+          (genreMood === "quiet" &&
+            (work.shelf === "poem" ||
+              work.shelf === "essay" ||
+              work.shelf === "letter" ||
+              /psychological|health|drama/.test(searchable))) ||
+          (genreMood === "wonder" &&
+            /adventure|comics|mythology|fantasy|science|journey/.test(searchable));
         if (!matchesMood) return false;
       }
       if (shelf !== "all" && work.shelf !== shelf) return false;
@@ -124,26 +131,147 @@ export function LibraryScreen() {
   }, [hydrated, places]);
   const showResume = Boolean(
     resume &&
-      shelf === "all" &&
-      !query.trim() &&
-      genre === "all" &&
-      period === "all" &&
-      author === "all" &&
-      time === "all" &&
-      language === "all" &&
-      !collectionId &&
-      !genreMood,
+    shelf === "all" &&
+    !query.trim() &&
+    genre === "all" &&
+    period === "all" &&
+    author === "all" &&
+    time === "all" &&
+    language === "all" &&
+    !collectionId &&
+    !genreMood,
   );
 
   return (
     <div className="shell" data-light="lamp">
+      <div className="site-masthead-wrap px-4 sm:px-6 md:px-8">
+        <header className="site-masthead mx-auto flex w-full max-w-[100rem] items-center justify-between gap-4 py-4 sm:py-5">
+          <Link
+            to="/"
+            className="brand-lockup no-underline"
+            aria-label="Pramanix Shelf, Reading Room home"
+          >
+            <span className="brand-mark" aria-hidden="true">
+              <BookOpen className="size-5" />
+            </span>
+            <span className="brand-copy">
+              <span className="brand-name">Pramanix Shelf</span>
+              <span className="brand-caption">A reading room for everyone</span>
+            </span>
+          </Link>
+          <nav
+            className="masthead-nav hidden items-center gap-6 lg:flex"
+            aria-label="Main navigation"
+          >
+            <a href="#collection">Explore the library</a>
+            <Link to="/writers">For writers</Link>
+          </nav>
+          <div className="masthead-account">
+            <Link
+              to="/login"
+              className="btn btn-ghost masthead-account-link"
+              title="Sign in to sync your shelf"
+            >
+              Sign in <span className="hidden sm:inline">to sync</span>
+            </Link>
+            <UserButton />
+          </div>
+        </header>
+      </div>
       <div className="mx-auto grid w-full max-w-[90rem] gap-6 px-4 py-6 sm:px-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8 md:px-8 md:py-10 xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:gap-12">
         <main className="library-main min-w-0 md:col-start-2 md:row-start-1">
-          <header className="mb-7 rounded-2xl border hairline elev px-5 py-6 sm:px-8 sm:py-8">
-            <p className="kicker">A reading room for everyone</p>
-            <h2 className="mt-3 max-w-2xl font-reading text-3xl leading-tight sm:text-4xl">Leave the noise. Enter a story.</h2>
-            <p className="mt-3 max-w-2xl font-reading text-lg leading-relaxed muted">A quieter corner of the internet. Browse freely, find a story in your language, and leave whenever you like.</p>
-          </header>
+          {workOfDay ? (
+            <section className="home-hero mb-7" aria-labelledby="welcome-heading">
+              <div className="home-hero-copy">
+                <p className="kicker">
+                  A little room for wonder{" "}
+                  <span className="hero-spark" aria-hidden="true">
+                    ✳
+                  </span>
+                </p>
+                <h1 id="welcome-heading" className="mt-4 font-reading">
+                  Leave the noise.
+                  <br />
+                  <em>Enter a story.</em>
+                </h1>
+                <p className="hero-intro">
+                  Good stories, gathered from many places and told in many voices. Take your time.
+                  The next one is waiting.
+                </p>
+                <div className="hero-actions">
+                  <Link
+                    to="/read/$slug"
+                    params={{ slug: workOfDay.slug }}
+                    className="btn btn-solid hero-read-button"
+                  >
+                    Read today’s story <span aria-hidden="true">↗</span>
+                  </Link>
+                  <a href="#collection" className="hero-browse-link">
+                    Browse the library <ArrowDown className="size-4" aria-hidden />
+                  </a>
+                </div>
+                <p className="hero-feature-meta">
+                  <span className="hero-live-dot" /> Today’s pick <span aria-hidden="true">·</span>{" "}
+                  {workOfDay.language ?? "English"} <span aria-hidden="true">·</span>{" "}
+                  {readingMinutes(workOfDay)} min
+                </p>
+              </div>
+              <Link
+                to="/read/$slug"
+                params={{ slug: workOfDay.slug }}
+                className="hero-art-link no-underline"
+                aria-label={`Read ${workOfDay.title} by ${workOfDay.author}`}
+              >
+                <div className="hero-art-backdrop" aria-hidden="true" />
+                {catalogue[(catalogue.indexOf(workOfDay) + 7) % catalogue.length] ? (
+                  <div className="hero-stack hero-stack-back" aria-hidden="true">
+                    <StoryArtwork
+                      work={catalogue[(catalogue.indexOf(workOfDay) + 7) % catalogue.length]}
+                    />
+                  </div>
+                ) : null}
+                {catalogue[(catalogue.indexOf(workOfDay) + 19) % catalogue.length] ? (
+                  <div className="hero-stack hero-stack-mid" aria-hidden="true">
+                    <StoryArtwork
+                      work={catalogue[(catalogue.indexOf(workOfDay) + 19) % catalogue.length]}
+                    />
+                  </div>
+                ) : null}
+                <div className="hero-feature-cover">
+                  <StoryArtwork work={workOfDay} />
+                </div>
+                <div className="hero-cover-caption">
+                  <span className="kicker">The daily escape</span>
+                  <span className="hero-cover-title">{workOfDay.title}</span>
+                  <span className="hero-cover-author">{workOfDay.author}</span>
+                </div>
+              </Link>
+              <button
+                type="button"
+                className="hero-surprise"
+                onClick={surpriseMe}
+                aria-label="Surprise me with a story"
+              >
+                <Shuffle className="size-4" aria-hidden />
+                <span>Surprise me</span>
+              </button>
+            </section>
+          ) : (
+            <header className="home-hero home-hero--empty mb-7">
+              <div className="home-hero-copy">
+                <p className="kicker">A reading room for everyone</p>
+                <h1 className="mt-4 font-reading">
+                  Leave the noise.
+                  <br />
+                  <em>Enter a story.</em>
+                </h1>
+                <p className="hero-intro">
+                  A quieter corner of the internet. Browse freely, find a story in your language,
+                  and take your time.
+                </p>
+              </div>
+            </header>
+          )}
           <div className="relative">
             <label className="relative block">
               <span className="sr-only">Search titles, authors, and text</span>
@@ -165,21 +293,47 @@ export function LibraryScreen() {
             <div className="flex items-baseline justify-between gap-3">
               <div>
                 <p className="kicker">Find your next world</p>
-                <h2 id="moods-heading" className="mt-1 font-reading text-2xl">Browse by feeling</h2>
+                <h2 id="moods-heading" className="mt-1 font-reading text-2xl">
+                  Browse by feeling
+                </h2>
               </div>
               {genreMood ? (
-                <button type="button" className="text-sm underline underline-offset-4" onClick={() => setGenreMood("")}>
+                <button
+                  type="button"
+                  className="text-sm underline underline-offset-4"
+                  onClick={() => setGenreMood("")}
+                >
                   Clear mood
                 </button>
               ) : null}
             </div>
             <div className="mood-grid mt-4">
               {[
-                { id: "mystery", title: "Mystery & suspense", note: "Shadows, secrets, and uneasy endings.", art: "mystery" },
-                { id: "myth", title: "Myths & wonder", note: "Old worlds, impossible journeys, and brave choices.", art: "myth" },
-                { id: "romance", title: "Matters of the heart", note: "Love, longing, and unexpected kindness.", art: "romance" },
-                { id: "quiet", title: "Quiet moments", note: "Reflective essays, poems, and gentler pages.", art: "quiet" },
-                { id: "wonder", title: "Adventure & imagination", note: "A door into another place.", art: "nature" },
+                {
+                  id: "mystery",
+                  title: "Mystery & suspense",
+                  note: "Shadows, secrets, and uneasy endings.",
+                },
+                {
+                  id: "myth",
+                  title: "Myths & wonder",
+                  note: "Old worlds, impossible journeys, and brave choices.",
+                },
+                {
+                  id: "romance",
+                  title: "Matters of the heart",
+                  note: "Love, longing, and unexpected kindness.",
+                },
+                {
+                  id: "quiet",
+                  title: "Quiet moments",
+                  note: "Reflective essays, poems, and gentler pages.",
+                },
+                {
+                  id: "wonder",
+                  title: "Adventure & imagination",
+                  note: "A door into another place.",
+                },
               ].map((mood) => (
                 <button
                   key={mood.id}
@@ -193,53 +347,45 @@ export function LibraryScreen() {
                     setGenre("all");
                   }}
                 >
-                  <span className={`mood-art mood-art-${mood.art}`} aria-hidden="true">
-                    <span className="mood-art-orbit" />
-                    <span className="mood-art-core" />
-                    <span className="mood-art-line" />
+                  <span className="mood-art" aria-hidden="true">
+                    <StoryArtwork
+                      work={
+                        catalogue.find((work) => {
+                          const words =
+                            `${work.title} ${work.author} ${(work.genres ?? []).join(" ")}`.toLocaleLowerCase();
+                          return mood.id === "mystery"
+                            ? /horror|thriller|gothic|mystery|ghost|haunt|secret|shadow/.test(words)
+                            : mood.id === "myth"
+                              ? /mythology|myth|persephone|orpheus|prometheus|odin|isis|rama|osiris|gods|goddess|adventure/.test(
+                                  words,
+                                )
+                              : mood.id === "romance"
+                                ? /love story|romance|heart|love|magi|marriage|belong/.test(words)
+                                : mood.id === "quiet"
+                                  ? work.shelf === "poem" ||
+                                    work.shelf === "essay" ||
+                                    work.shelf === "letter" ||
+                                    /psychological|health|drama/.test(words)
+                                  : /adventure|comics|mythology|fantasy|science|journey/.test(
+                                      words,
+                                    );
+                        }) ??
+                        workOfDay ??
+                        catalogue[0]
+                      }
+                    />
                   </span>
                   <span className="mood-card-copy">
                     <span className="font-reading text-lg">{mood.title}</span>
                     <span className="mt-1 block text-sm leading-snug muted">{mood.note}</span>
                   </span>
-                  <span className="mood-card-arrow" aria-hidden="true">↗</span>
+                  <span className="mood-card-arrow" aria-hidden="true">
+                    ↗
+                  </span>
                 </button>
               ))}
             </div>
           </section>
-
-          {workOfDay ? (
-            <section className="mt-7 grid gap-3 sm:grid-cols-[1fr_auto]" aria-label="Highlights">
-              <Link
-                to="/read/$slug"
-                params={{ slug: workOfDay.slug }}
-                className="feature-card daily-escape no-underline"
-              >
-                <div className="daily-escape-art"><StoryArtwork work={workOfDay} /></div>
-                <div className="daily-escape-copy">
-                  <p className="kicker flex items-center gap-2">
-                    <Sparkles className="size-3.5" aria-hidden /> Daily Escape
-                  </p>
-                  <h2 className="mt-2 font-reading text-2xl leading-tight">{workOfDay.title}</h2>
-                  <p className="mt-1 text-sm muted">
-                    {workOfDay.author} · {genreFor(workOfDay)} · {readingMinutes(workOfDay)} min read
-                  </p>
-                  <p className="mt-3 line-clamp-3 font-reading text-lg leading-snug italic muted">
-                    {excerpt(openingLine(workOfDay), 180)}
-                  </p>
-                  <span className="daily-escape-cta">Read today’s story <span aria-hidden="true">→</span></span>
-                </div>
-              </Link>
-              <button
-                type="button"
-                className="btn btn-ghost surprise-btn h-auto min-h-[5.5rem] flex-col gap-2 px-5 py-4 sm:min-w-[9.5rem]"
-                onClick={surpriseMe}
-              >
-                <Shuffle className="size-5" aria-hidden />
-                <span className="text-sm font-medium">Surprise me</span>
-              </button>
-            </section>
-          ) : null}
 
           <section className="mt-7" aria-labelledby="collections-heading">
             <div className="flex items-baseline justify-between gap-3">
@@ -265,9 +411,13 @@ export function LibraryScreen() {
                   aria-pressed={collectionId === item.id}
                   onClick={() => setCollectionId(collectionId === item.id ? "" : item.id)}
                 >
-                  <BookOpen className="size-4" aria-hidden />
-                  <span className="mt-3 block font-reading text-lg">{item.title}</span>
-                  <span className="mt-1 block text-sm leading-snug muted">{item.note}</span>
+                  <span className="path-cover" aria-hidden="true">
+                    <StoryArtwork work={catalogue.find(item.select) ?? workOfDay ?? catalogue[0]} />
+                  </span>
+                  <span className="path-copy">
+                    <span className="font-reading text-lg">{item.title}</span>
+                    <span className="mt-1 block text-sm leading-snug muted">{item.note}</span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -290,13 +440,13 @@ export function LibraryScreen() {
             aria-label="Filter and sort works"
           >
             <Filter label="Genre" value={genre} onChange={setGenre} options={["all", ...genres]} />
-          <Filter
-            label="Language"
-            value={language}
-            onChange={setLanguage}
-            options={["all", ...languages]}
-            labels={{ all: "Every language" }}
-          />
+            <Filter
+              label="Language"
+              value={language}
+              onChange={setLanguage}
+              options={["all", ...languages]}
+              labels={{ all: "Every language" }}
+            />
             <Filter
               label="Period"
               value={period}
@@ -359,17 +509,36 @@ export function LibraryScreen() {
             </Link>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-<p className="text-sm muted" aria-live="polite">
-            Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}{" "}
-            {filtered.length === 1 ? "volume" : "volumes"}
-            {query ? ` matching “${query}”` : " on the shelf"}
-          </p>
-<div className="view-switch" role="group" aria-label="Story display">
-<button type="button" className={view === "grid" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid className="size-4" aria-hidden /><span>Cards</span></button>
-<button type="button" className={view === "list" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "list"} onClick={() => setView("list")}><List className="size-4" aria-hidden /><span>List</span></button>
-</div>
-</div>
+          <div
+            id="collection"
+            className="mt-8 flex scroll-mt-8 flex-wrap items-center justify-between gap-3"
+          >
+            <p className="text-sm muted" aria-live="polite">
+              Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}{" "}
+              {filtered.length === 1 ? "volume" : "volumes"}
+              {query ? ` matching “${query}”` : " on the shelf"}
+            </p>
+            <div className="view-switch" role="group" aria-label="Story display">
+              <button
+                type="button"
+                className={view === "grid" ? "view-switch-button active" : "view-switch-button"}
+                aria-pressed={view === "grid"}
+                onClick={() => setView("grid")}
+              >
+                <LayoutGrid className="size-4" aria-hidden />
+                <span>Cards</span>
+              </button>
+              <button
+                type="button"
+                className={view === "list" ? "view-switch-button active" : "view-switch-button"}
+                aria-pressed={view === "list"}
+                onClick={() => setView("list")}
+              >
+                <List className="size-4" aria-hidden />
+                <span>List</span>
+              </button>
+            </div>
+          </div>
           {filtered.length === 0 ? (
             <p className="mt-8 font-reading text-xl">
               Nothing on the shelf matches. Try another spelling or loosen a filter.
@@ -401,8 +570,12 @@ export function LibraryScreen() {
                               <span className="story-card-status">{status}</span>
                             </div>
                             <div className="story-card-body">
-                              <p className="kicker">{genreFor(work)} · {work.language ?? "English"} · {work.year}</p>
-                              <h3 className="mt-2 font-reading text-xl leading-snug">{work.title}</h3>
+                              <p className="kicker">
+                                {genreFor(work)} · {work.language ?? "English"} · {work.year}
+                              </p>
+                              <h3 className="mt-2 font-reading text-xl leading-snug">
+                                {work.title}
+                              </h3>
                               <p className="mt-1 text-sm muted">{work.author}</p>
                               <p className="mt-3 line-clamp-3 font-reading leading-snug italic muted">
                                 {excerpt(openingLine(work), 130)}
@@ -425,7 +598,11 @@ export function LibraryScreen() {
           )}
           {filtered.length > visibleCount ? (
             <div className="mt-8 flex flex-col items-center gap-2">
-              <button type="button" className="btn btn-ghost" onClick={() => setVisibleCount((count) => count + 24)}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setVisibleCount((count) => count + 24)}
+              >
                 Show 24 more stories
               </button>
               <p className="text-xs muted">No rush. Read one story at a time.</p>
@@ -434,23 +611,16 @@ export function LibraryScreen() {
         </main>
 
         <aside className="library-sidebar md:col-start-1 md:row-start-1 md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
-          <p className="kicker">Open library</p>
-          <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
-          <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
-            A quiet place for everyone. Browse and read freely; your place stays on this device, and
-            signing in is optional.
+          <p className="kicker">A library for taking your time</p>
+          <h2 className="mt-3 font-reading text-3xl leading-tight tracking-tight">
+            Find a page
+            <br />
+            that feels like yours.
+          </h2>
+          <p className="mt-4 max-w-sm font-reading text-lg leading-snug muted">
+            Stories, poems, and wisdom from many places. Read freely, in the language that feels
+            closest.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <Link to="/login" className="btn btn-quiet">
-                Sign in to sync
-              </Link>
-            </SignedOut>
-            <span className="text-xs muted">Optional account</span>
-          </div>
           <dl className="mt-8 grid grid-cols-3 gap-3 border-t hairline pt-5">
             <div>
               <dt className="kicker">Minutes</dt>
@@ -513,7 +683,9 @@ export function LibraryScreen() {
           >
             <span className="kicker">For writers</span>
             <span className="mt-2 block font-reading text-xl">Become a content writer</span>
-            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
+            <span className="mt-1 block text-sm muted">
+              Share stories, poems, and regional voices.
+            </span>
           </Link>
           <a
             href={feedbackHref}
@@ -521,7 +693,9 @@ export function LibraryScreen() {
           >
             <span className="kicker">Help improve the Reading Room</span>
             <span className="mt-2 block font-reading text-xl">Share feedback</span>
-            <span className="mt-1 block text-sm muted">Tell us what you enjoy or what could work better.</span>
+            <span className="mt-1 block text-sm muted">
+              Tell us what you enjoy or what could work better.
+            </span>
           </a>
           {bookmarks.length ? (
             <section className="mt-8 border-t hairline pt-5">
