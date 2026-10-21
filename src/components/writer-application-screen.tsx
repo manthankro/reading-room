@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { submitWriterApplication } from "@/lib/writer-applications";
 
 type FormState = "ready" | "sending" | "received" | "error";
@@ -14,11 +14,12 @@ export function WriterApplicationScreen() {
   const [notificationStatus, setNotificationStatus] = useState("");
   const [applicationId, setApplicationId] = useState("");
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setState("sending");
     setError("");
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const splitList = (value: FormDataEntryValue | null) =>
       String(value ?? "")
         .split(",")
@@ -43,7 +44,7 @@ export function WriterApplicationScreen() {
       setApplicationId(result.id);
       setNotificationStatus(result.notificationStatus);
       setState("received");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (submitError) {
       setError(
         submitError instanceof Error
