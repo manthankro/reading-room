@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Download, LayoutGrid, List, Search, Shuffle, Sparkles, Upload } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { BookOpen, LayoutGrid, List, Search, Shuffle, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
   catalogue,
@@ -18,14 +18,12 @@ import {
 } from "@/lib/library";
 import {
   formatMinutes,
-  getReadingSnapshot,
   totalSeconds,
   useReadingStore,
 } from "@/lib/reading-store";
 import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
 import { languageTagFor } from "@/lib/language";
-import { parseReadingSnapshot } from "@/lib/reading-snapshot";
 
 export function LibraryScreen() {
   const [query, setQuery] = useState("");
@@ -40,8 +38,6 @@ export function LibraryScreen() {
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
   const [genreMood, setGenreMood] = useState("");
-  const [message, setMessage] = useState("");
-  const importRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const workOfDay = useMemo(() => {
@@ -137,42 +133,6 @@ export function LibraryScreen() {
       !collectionId &&
       !genreMood,
   );
-
-  function exportShelf() {
-    const payload = {
-      app: "reading-room",
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      snapshot: getReadingSnapshot(),
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `reading-room-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    setMessage("Your shelf backup is ready.");
-  }
-
-  async function importShelf(file?: File) {
-    if (!file) return;
-    try {
-      if (file.size > 2_000_000) throw new Error("That backup is too large to import (maximum 2 MB).");
-      const parsed: unknown = JSON.parse(await file.text());
-      if (!parsed || typeof parsed !== "object") throw new Error("That file is not a Reading Room backup.");
-      const payload = parsed as { app?: string; snapshot?: unknown };
-      const snapshot = parseReadingSnapshot(payload.snapshot);
-      if (payload.app !== "reading-room" || !snapshot)
-        throw new Error("That file is not a Reading Room backup.");
-      useReadingStore.getState().importSnapshot(snapshot);
-      setMessage("Shelf restored. Existing reading data was kept where it was newer.");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not read that backup file.");
-    } finally {
-      if (importRef.current) importRef.current.value = "";
-    }
-  }
 
   return (
     <div className="shell" data-light="lamp">
@@ -542,30 +502,6 @@ export function LibraryScreen() {
               <span style={{ width: `${Math.min(100, (todayMinutes / goalMinutes) * 100)}%` }} />
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button type="button" className="btn btn-quiet px-3" onClick={exportShelf}>
-              <Download className="size-4" aria-hidden /> Backup
-            </button>
-            <button
-              type="button"
-              className="btn btn-quiet px-3"
-              onClick={() => importRef.current?.click()}
-            >
-              <Upload className="size-4" aria-hidden /> Restore
-            </button>
-            <input
-              ref={importRef}
-              type="file"
-              accept="application/json,.json"
-              className="sr-only"
-              onChange={(event) => void importShelf(event.currentTarget.files?.[0])}
-            />
-          </div>
-          {message ? (
-            <p role="status" className="mt-3 text-sm muted">
-              {message}
-            </p>
-          ) : null}
           <p className="mt-5 text-sm muted">
             {catalogue.length} volumes · {notes.length} margin notes ·{" "}
             {formatMinutes(totalSeconds(seconds))} together
