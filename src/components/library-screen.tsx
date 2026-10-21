@@ -24,6 +24,7 @@ import {
   type ReadingSnapshot,
 } from "@/lib/reading-store";
 import { type Shelf } from "@/lib/works";
+import { StoryArtwork } from "@/components/story-artwork";
 
 function isSnapshot(value: unknown): value is ReadingSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -51,6 +52,7 @@ export function LibraryScreen() {
   const [time, setTime] = useState("all");
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
+  const [genreMood, setGenreMood] = useState("");
   const [message, setMessage] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -85,6 +87,16 @@ export function LibraryScreen() {
 
   const filtered = useMemo(() => {
     let result = catalogue.filter((work) => {
+      if (genreMood) {
+        const searchable = `${work.title} ${work.author} ${(work.genres ?? []).join(" ")}`.toLocaleLowerCase();
+        const matchesMood =
+          (genreMood === "mystery" && /horror|thriller|gothic|mystery|ghost|haunt|secret|shadow/.test(searchable)) ||
+          (genreMood === "myth" && /mythology|myth|persephone|orpheus|prometheus|odin|isis|rama|osiris|gods|goddess|adventure/.test(searchable)) ||
+          (genreMood === "romance" && /love story|romance|heart|love|magi|marriage|belong/.test(searchable)) ||
+          (genreMood === "quiet" && (work.shelf === "poem" || work.shelf === "essay" || work.shelf === "letter" || /psychological|health|drama/.test(searchable))) ||
+          (genreMood === "wonder" && /adventure|comics|mythology|fantasy|science|journey/.test(searchable));
+        if (!matchesMood) return false;
+      }
       if (shelf !== "all" && work.shelf !== shelf) return false;
       if (genre !== "all" && genreFor(work) !== genre) return false;
       if (period !== "all" && periodFor(work.year) !== period) return false;
@@ -107,7 +119,7 @@ export function LibraryScreen() {
             : a.title.localeCompare(b.title),
     );
     return result;
-  }, [author, collectionId, genre, period, query, shelf, sort, time]);
+  }, [author, collectionId, genre, genreMood, period, query, shelf, sort, time]);
 
   const resume = useMemo(() => {
     if (!hydrated) return undefined;
@@ -125,7 +137,8 @@ export function LibraryScreen() {
       period === "all" &&
       author === "all" &&
       time === "all" &&
-      !collectionId,
+      !collectionId &&
+      !genreMood,
   );
 
   function exportShelf() {
@@ -303,23 +316,74 @@ export function LibraryScreen() {
             </label>
           </div>
 
+          <section className="mt-8" aria-labelledby="moods-heading">
+            <div className="flex items-baseline justify-between gap-3">
+              <div>
+                <p className="kicker">Find your next world</p>
+                <h2 id="moods-heading" className="mt-1 font-reading text-2xl">Browse by feeling</h2>
+              </div>
+              {genreMood ? (
+                <button type="button" className="text-sm underline underline-offset-4" onClick={() => setGenreMood("")}>
+                  Clear mood
+                </button>
+              ) : null}
+            </div>
+            <div className="mood-grid mt-4">
+              {[
+                { id: "mystery", title: "Mystery & suspense", note: "Shadows, secrets, and uneasy endings.", art: "mystery" },
+                { id: "myth", title: "Myths & wonder", note: "Old worlds, impossible journeys, and brave choices.", art: "myth" },
+                { id: "romance", title: "Matters of the heart", note: "Love, longing, and unexpected kindness.", art: "romance" },
+                { id: "quiet", title: "Quiet moments", note: "Reflective essays, poems, and gentler pages.", art: "quiet" },
+                { id: "wonder", title: "Adventure & imagination", note: "A door into another place.", art: "nature" },
+              ].map((mood) => (
+                <button
+                  key={mood.id}
+                  type="button"
+                  className={`mood-card ${genreMood === mood.id ? "is-selected" : ""}`}
+                  aria-pressed={genreMood === mood.id}
+                  onClick={() => {
+                    setGenreMood(genreMood === mood.id ? "" : mood.id);
+                    setCollectionId("");
+                    setShelf("all");
+                    setGenre("all");
+                  }}
+                >
+                  <span className={`mood-art mood-art-${mood.art}`} aria-hidden="true">
+                    <span className="mood-art-orbit" />
+                    <span className="mood-art-core" />
+                    <span className="mood-art-line" />
+                  </span>
+                  <span className="mood-card-copy">
+                    <span className="font-reading text-lg">{mood.title}</span>
+                    <span className="mt-1 block text-sm leading-snug muted">{mood.note}</span>
+                  </span>
+                  <span className="mood-card-arrow" aria-hidden="true">↗</span>
+                </button>
+              ))}
+            </div>
+          </section>
+
           {workOfDay ? (
             <section className="mt-7 grid gap-3 sm:grid-cols-[1fr_auto]" aria-label="Highlights">
               <Link
                 to="/read/$slug"
                 params={{ slug: workOfDay.slug }}
-                className="feature-card no-underline"
+                className="feature-card daily-escape no-underline"
               >
-                <p className="kicker flex items-center gap-2">
-                  <Sparkles className="size-3.5" aria-hidden /> Work of the day
-                </p>
-                <h2 className="mt-2 font-reading text-2xl leading-tight">{workOfDay.title}</h2>
-                <p className="mt-1 text-sm muted">
-                  {workOfDay.author} · {genreFor(workOfDay)} · {readingMinutes(workOfDay)} min
-                </p>
-                <p className="mt-3 line-clamp-2 font-reading text-lg leading-snug italic muted">
-                  {excerpt(openingLine(workOfDay), 160)}
-                </p>
+                <div className="daily-escape-art"><StoryArtwork work={workOfDay} /></div>
+                <div className="daily-escape-copy">
+                  <p className="kicker flex items-center gap-2">
+                    <Sparkles className="size-3.5" aria-hidden /> Daily Escape
+                  </p>
+                  <h2 className="mt-2 font-reading text-2xl leading-tight">{workOfDay.title}</h2>
+                  <p className="mt-1 text-sm muted">
+                    {workOfDay.author} · {genreFor(workOfDay)} · {readingMinutes(workOfDay)} min read
+                  </p>
+                  <p className="mt-3 line-clamp-3 font-reading text-lg leading-snug italic muted">
+                    {excerpt(openingLine(workOfDay), 180)}
+                  </p>
+                  <span className="daily-escape-cta">Read today’s story <span aria-hidden="true">→</span></span>
+                </div>
               </Link>
               <button
                 type="button"
@@ -458,7 +522,7 @@ export function LibraryScreen() {
               return (
                 <section key={id} className="mt-8">
                   <h2 className="kicker">{shelfLabel[id]}</h2>
-                  <ul className="mt-2">
+                  <ul className="story-grid mt-4">
                     {group.map((work) => {
                       const place = hydrated ? places[work.slug] : undefined;
                       const status = place?.finished
@@ -471,24 +535,26 @@ export function LibraryScreen() {
                           <Link
                             to="/read/$slug"
                             params={{ slug: work.slug }}
-                            className="row rounded-sm"
+                            className="story-card no-underline"
                           >
-                            <div className="flex items-baseline justify-between gap-4">
-                              <h3 className="font-reading text-xl leading-snug">{work.title}</h3>
-                              <span className="shrink-0 text-sm tabular-nums muted">{status}</span>
+                            <div className="story-card-cover">
+                              <StoryArtwork work={work} />
+                              <span className="story-card-status">{status}</span>
                             </div>
-                            <p className="mt-1 text-sm muted">
-                              {work.author} · {work.year} · {genreFor(work)} ·{" "}
-                              {readingMinutes(work)} min
-                            </p>
-                            <p className="mt-2 line-clamp-2 font-reading leading-snug italic muted">
-                              {excerpt(openingLine(work))}
-                            </p>
-                            {place && !place.finished && place.ratio > 0.02 ? (
-                              <div className="track mt-3" aria-hidden>
-                                <span style={{ width: `${Math.round(place.ratio * 100)}%` }} />
-                              </div>
-                            ) : null}
+                            <div className="story-card-body">
+                              <p className="kicker">{genreFor(work)} · {work.year}</p>
+                              <h3 className="mt-2 font-reading text-xl leading-snug">{work.title}</h3>
+                              <p className="mt-1 text-sm muted">{work.author}</p>
+                              <p className="mt-3 line-clamp-3 font-reading leading-snug italic muted">
+                                {excerpt(openingLine(work), 130)}
+                              </p>
+                              <p className="mt-4 text-xs muted">{readingMinutes(work)} min read</p>
+                              {place && !place.finished && place.ratio > 0.02 ? (
+                                <div className="track mt-3" aria-hidden>
+                                  <span style={{ width: `${Math.round(place.ratio * 100)}%` }} />
+                                </div>
+                              ) : null}
+                            </div>
                           </Link>
                         </li>
                       );

@@ -9,7 +9,11 @@ Browse a catalogue of public-domain classics and original works. Your reading pr
 ## Features
 
 - Search and filter by genre, form, author, period, and reading time
-- Curated collections, a daily pick, and a “Surprise me” option
+- Illustrated editorial story cards with distinct locally rendered cover art and optional persistent cover-image URLs
+- Mood-led genre browsing, including mystery, myths, romance, quiet reading, and adventure
+- A Daily Escape feature with a stable daily story, cover art, teaser, and direct reading action
+- Story detail cover art, language metadata, passage navigation, and a distraction-free reader mode
+- Curated collections and a “Surprise me” option
 - Reader themes and controls for type size, line spacing, and reading width
 - Local bookmarks, highlights, margin notes, daily goals, and backup/restore
 - Optional account sync
@@ -38,6 +42,10 @@ Useful commands:
 | `npm test` | Run the test suite |
 | `npm run build` | Build the production app and apply configured migrations |
 | `npm run preview` | Preview a production build |
+
+## Visual reading experience
+
+Reading Room creates deterministic, story-specific SVG cover illustrations locally from each work’s slug and thematic metadata. The same cover component is reused in the daily feature, catalogue cards, and reader detail page. Works can optionally define a `coverImage` URL in their catalogue data to use a persistent hosted cover instead. Existing works default to English unless a `language` value is supplied. Covers remain outside the reading text so focus mode stays uncluttered. The catalogue is currently code-managed; a database-backed cover upload/admin interface is not part of this release.
 
 ## How it works
 
