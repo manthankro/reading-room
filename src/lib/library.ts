@@ -39,6 +39,13 @@ export const shelfLabel: Record<Shelf, string> = {
 
 export const shelfSequence: Shelf[] = ["story", "essay", "poem", "letter"];
 
+const titleAZCollator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
+
+/** Natural, case-insensitive title order for A–Z shelf browsing. */
+export function compareTitlesAZ(a: Pick<Work, "title">, b: Pick<Work, "title">): number {
+  return titleAZCollator.compare(a.title, b.title);
+}
+
 export function getWork(slug: string): Work | undefined {
   return catalogue.find((work) => work.slug === slug);
 }
