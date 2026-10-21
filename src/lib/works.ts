@@ -12,6 +12,8 @@ export type Genre =
   | "Isekai"
   | "Historical"
   | "Fantasy"
+  | "Slice of life"
+  | "Family"
   | "Mystery"
   | "Science fiction"
   | "Comedy"
