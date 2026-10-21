@@ -21,28 +21,11 @@ import {
   getReadingSnapshot,
   totalSeconds,
   useReadingStore,
-  type ReadingSnapshot,
 } from "@/lib/reading-store";
 import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
 import { languageTagFor } from "@/lib/language";
-
-function isSnapshot(value: unknown): value is ReadingSnapshot {
-  if (!value || typeof value !== "object") return false;
-  const data = value as Partial<ReadingSnapshot>;
-  return (
-    !!data.places &&
-    typeof data.places === "object" &&
-    Array.isArray(data.notes) &&
-    Array.isArray(data.bookmarks) &&
-    Array.isArray(data.highlights) &&
-    !!data.seconds &&
-    typeof data.seconds === "object" &&
-    !!data.dailySeconds &&
-    typeof data.dailySeconds === "object" &&
-    typeof data.goalMinutes === "number"
-  );
-}
+import { parseReadingSnapshot } from "@/lib/reading-snapshot";
 
 export function LibraryScreen() {
   const [query, setQuery] = useState("");
@@ -175,11 +158,14 @@ export function LibraryScreen() {
   async function importShelf(file?: File) {
     if (!file) return;
     try {
+      if (file.size > 2_000_000) throw new Error("That backup is too large to import (maximum 2 MB).");
       const parsed: unknown = JSON.parse(await file.text());
+      if (!parsed || typeof parsed !== "object") throw new Error("That file is not a Reading Room backup.");
       const payload = parsed as { app?: string; snapshot?: unknown };
-      if (payload.app !== "reading-room" || !isSnapshot(payload.snapshot))
+      const snapshot = parseReadingSnapshot(payload.snapshot);
+      if (payload.app !== "reading-room" || !snapshot)
         throw new Error("That file is not a Reading Room backup.");
-      useReadingStore.getState().importSnapshot(payload.snapshot);
+      useReadingStore.getState().importSnapshot(snapshot);
       setMessage("Shelf restored. Existing reading data was kept where it was newer.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not read that backup file.");

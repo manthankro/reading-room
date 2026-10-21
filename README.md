@@ -16,6 +16,8 @@ Browse a catalogue of public-domain classics and original works. Your reading pr
 - Story detail cover art, language metadata, passage navigation, and a distraction-free reader mode
 - Curated collections and a “Surprise me” option
 - Reader themes and controls for type size, line spacing, and reading width
+- First-party story translation into English, Hindi, and Marathi when Google Cloud Translation is configured
+- Four optional, locally bundled ambience recordings with playback controls and creator/license credits
 - Local bookmarks, highlights, margin notes, daily goals, and backup/restore
 - Optional account sync
 - Writer applications for regional and multilingual storytellers, with a private administrator review area
@@ -53,7 +55,7 @@ Reading Room creates deterministic, story-specific SVG cover illustrations local
 
 Reading Room is a full-stack React application built with TanStack Start and Vite. TanStack Router handles file-based routes; Nitro packages the server for Vercel.
 
-The catalogue is stored in TypeScript modules under `src/lib/`. Reading data is local-first and uses the browser by default. When sign-in and a database are configured, Better Auth protects account features and Postgres stores the signed-in reader’s synced shelf. Builds without a database skip the deploy-time migration step; local preview can use PGLite.
+The catalogue is stored in TypeScript modules under `src/lib/`. Reading data is local-first and uses the browser by default. When sign-in and a database are configured, Better Auth protects account features and Postgres stores the signed-in reader’s synced shelf. Builds without a database skip the deploy-time migration step; local preview can use PGLite. The catalogue includes original Reading Room stories in eight Indian languages alongside its English collection.
 
 ## Configuration
 
@@ -69,6 +71,10 @@ Writer applications require these server-side Vercel environment variables:
 - `APP_BASE_URL` — public site URL used in notification links
 
 Configure these in Vercel for Preview and Production. Never commit actual values. The application form saves entries to Postgres first; if email is unavailable, the entry remains saved and an administrator can retry the notification from the private review area. To make a user an administrator, add their email to `WRITER_ADMIN_EMAILS` and have them sign in with that verified email.
+
+Story translation requires `GOOGLE_CLOUD_TRANSLATE_API_KEY` as a server-only Vercel environment variable, with the Cloud Translation API enabled for its Google Cloud project. Restrict the key to that API and do not use a `VITE_` prefix. Translation targets are English, Hindi, and Marathi; source text stays unchanged and translated output is cached in server memory for up to 24 hours. Translation requests are limited to eight per client address per ten minutes in each server instance; use an edge rate limit as traffic scales because Vercel can run multiple instances. Google Cloud Translation is a billed service; check current Google Cloud pricing and quotas before enabling it. Translation is limited to Reading Room original works to respect third-party content rights.
+
+The ambient recordings are shipped locally under `public/ambient/`. Source and license details are in [AUDIO-LICENSES.md](AUDIO-LICENSES.md).
 
 The app can also receive `VITE_*` settings at build time. Only use that prefix for values that are safe to expose to the browser.
 

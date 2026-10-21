@@ -4,7 +4,10 @@ import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Share2, Sun, X } from "lucide
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { getWork, readingMinutes } from "@/lib/library";
 import { StoryArtwork } from "@/components/story-artwork";
+import { AmbientPlayer } from "@/components/ambient-player";
 import { languageTagFor } from "@/lib/language";
+import { getTranslationStatus, translateStory } from "@/lib/translation.functions";
+import { translationTargetNames, translationTargets, type TranslationTarget } from "@/lib/translation.shared";
 import {
   formatMinutes,
   useReadingStore,
@@ -15,6 +18,7 @@ import {
 } from "@/lib/reading-store";
 
 type Anchor = { text: string; top: number; left: number };
+type StoryTranslation = Awaited<ReturnType<typeof translateStory>>;
 
 function genreForReader(work: { genres?: string[]; shelf: string }): string {
   return work.genres?.[0] ?? (work.shelf === "poem" ? "Poetry" : work.shelf === "essay" ? "Essay" : work.shelf === "letter" ? "Letter" : "Short fiction");
@@ -82,7 +86,31 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const [draft, setDraft] = useState("");
   const [draftBody, setDraftBody] = useState("");
   const [shareMessage, setShareMessage] = useState("");
+  const [translationTarget, setTranslationTarget] = useState<TranslationTarget>("hi");
+  const [translation, setTranslation] = useState<StoryTranslation | null>(null);
+  const [translationAvailable, setTranslationAvailable] = useState<boolean | null>(null);
+  const [translationBusy, setTranslationBusy] = useState(false);
+  const [translationError, setTranslationError] = useState("");
   const armed = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    setTranslation(null);
+    setTranslationError("");
+    setTranslationAvailable(null);
+    const source = languageTagFor(work?.language);
+    setTranslationTarget(translationTargets.find((target) => target !== source) ?? "hi");
+    void getTranslationStatus()
+      .then((status) => {
+        if (active) setTranslationAvailable(status.configured);
+      })
+      .catch(() => {
+        if (active) setTranslationAvailable(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [slug, work]);
 
   useEffect(() => {
     if (!work || !hydrated) return;
@@ -152,6 +180,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
 
   useEffect(() => {
     const onSelect = () => {
+      if (translation) {
+        setAnchor(null);
+        return;
+      }
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) {
         setAnchor(null);
@@ -181,7 +213,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
     };
     document.addEventListener("selectionchange", onSelect);
     return () => document.removeEventListener("selectionchange", onSelect);
-  }, []);
+  }, [translation]);
 
   if (!work) {
     return (
@@ -201,6 +233,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const percent = Math.round(ratio * 100);
   const remaining = Math.max(1, Math.round(readingMinutes(work) * (1 - ratio)));
   const poem = work.shelf === "poem";
+  const displayedTitle = translation?.title ?? work.title;
+  const displayedParagraphs = translation?.paragraphs ?? work.paragraphs;
+  const displayedLanguage = translation ? translationTargetNames[translation.targetLanguage] : work.language ?? "English";
+  const translationEligible = work.author === "Reading Room" || work.author.startsWith("Reading Room (after ");
 
   function openNotes(quote?: string) {
     setNotesClosing(false);
@@ -249,6 +285,24 @@ export function ReaderScreen({ slug }: { slug: string }) {
     }
   }
 
+  async function requestTranslation() {
+    if (!work) return;
+    setTranslationBusy(true);
+    setTranslationError("");
+    try {
+      const result = await translateStory({ data: { slug, targetLanguage: translationTarget } });
+      if (result.paragraphs.length !== work.paragraphs.length) {
+        throw new Error("The translation was incomplete. The original story is unchanged.");
+      }
+      setTranslation(result);
+      setAnchor(null);
+    } catch (error) {
+      setTranslationError(error instanceof Error ? error.message : "Translation could not be completed. The original story is unchanged.");
+    } finally {
+      setTranslationBusy(false);
+    }
+  }
+
   return (
     <div className="shell" data-light={light}>
       <header className="bar sticky top-0 z-30 border-b hairline">
@@ -273,6 +327,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
               type="button"
               className="btn btn-quiet shrink-0 px-3"
               aria-expanded={typeOpen}
+              aria-controls="reader-settings"
               onClick={() => setTypeOpen((open) => !open)}
             >
               Type
@@ -303,7 +358,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
             </button>
           </div>
         )}
-        <div className={typeOpen && !focus ? "settings open" : "settings"}>
+        <div id="reader-settings" className={typeOpen && !focus ? "settings open" : "settings"}>
           <div className="settings-inner">
             <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 pt-1 pb-4">
               <Segment
@@ -339,23 +394,62 @@ export function ReaderScreen({ slug }: { slug: string }) {
       </header>
 
       <article
-        lang={languageTagFor(work.language)}
+        lang={translation?.targetLanguage ?? languageTagFor(work.language)}
         className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16"
       >
         {!focus ? (
           <div className="reader-cover-wrap">
             <div className="reader-cover"><StoryArtwork work={work} /></div>
-            <p className="reader-cover-caption">{genreForReader(work)} · {work.language ?? "English"}</p>
+            <p className="reader-cover-caption">{genreForReader(work)} · {translation ? `${work.language ?? "English"} → ${displayedLanguage}` : work.language ?? "English"}</p>
           </div>
         ) : null}
         <header className={poem ? "measure-narrow mx-auto" : "measure-comfort mx-auto"}>
           <p className="kicker sub">{work.author}</p>
-          <h1 className="mt-3 font-reading text-4xl leading-tight">{work.title}</h1>
+          <h1 className="mt-3 font-reading text-4xl leading-tight">{displayedTitle}</h1>
           <p className="sub mt-3 text-sm">
-            {work.year} · {work.language ?? "English"} · {readingMinutes(work)} min read
+            {work.year} · {translation ? `Original: ${work.language ?? "English"} · Translation: ${displayedLanguage}` : displayedLanguage} · {readingMinutes(work)} min read
             {seconds >= 30 ? ` · ${formatMinutes(seconds)} with you` : ""}
             {place ? ` · ${place.finished ? "finished" : `${remaining} min left`}` : ""}
           </p>
+          {translationEligible ? (
+            <div className="reader-translation mt-5" aria-label="Story translation">
+              <div className="flex flex-wrap items-end gap-3">
+                <label className="min-w-40 flex-1 sm:max-w-56">
+                  <span className="kicker">Read this story in</span>
+                  <select
+                    className="select-field mt-2"
+                    value={translationTarget}
+                    onChange={(event) => setTranslationTarget(event.target.value as TranslationTarget)}
+                    aria-label="Translation language"
+                    disabled={translationBusy}
+                  >
+                    {translationTargets.filter((target) => target !== languageTagFor(work.language)).map((target) => (
+                      <option key={target} value={target}>{translationTargetNames[target]}</option>
+                    ))}
+                  </select>
+                </label>
+                {translation ? (
+                  <button type="button" className="btn btn-quiet" onClick={() => { setTranslation(null); setTranslationError(""); }}>
+                    Show original ({work.language ?? "English"})
+                  </button>
+                ) : (
+                  <button type="button" className="btn btn-solid" onClick={() => void requestTranslation()} disabled={translationBusy || translationAvailable !== true}>
+                    {translationBusy ? "Translating…" : translationAvailable === false ? "Translation unavailable" : translationAvailable === null ? "Checking translation…" : `Translate to ${translationTargetNames[translationTarget]}`}
+                  </button>
+                )}
+              </div>
+              {translationAvailable === false && !translation ? (
+                <p className="mt-2 text-sm muted">Translations need a secure provider setup. The original story remains ready to read.</p>
+              ) : null}
+              {translation ? (
+                <p className="mt-2 text-sm muted">Translated from {work.language ?? "English"} into {displayedLanguage} with Google Cloud Translation. Switch back to the original whenever you like.</p>
+              ) : null}
+              {translationError ? <p className="mt-2 text-sm text-red-800" role="alert">{translationError}</p> : null}
+            </div>
+          ) : (
+            <p className="mt-5 text-sm muted">Translation is available for Reading Room original works. This text is kept in its published language.</p>
+          )}
+          <AmbientPlayer />
           <label className="reader-jump mt-5 block">
             <span className="kicker">Jump to passage</span>
             <select
@@ -368,7 +462,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
               }}
             >
               <option value="">Choose a passage…</option>
-              {work.paragraphs.map((paragraph, index) => (
+              {displayedParagraphs.map((paragraph, index) => (
                 <option key={index} value={`p-${index}`}>{`Passage ${index + 1}: ${paragraph.slice(0, 68).trim()}…`}</option>
               ))}
             </select>
@@ -380,7 +474,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
           data-readable
           className={`mx-auto mt-10 font-reading ${poem ? "poem" : "prose"} measure-${measure} size-${size} lead-${leading}`}
         >
-          {work.paragraphs.map((paragraph, index) => (
+          {displayedParagraphs.map((paragraph, index) => (
             <p id={`p-${index}`} data-p={index} key={`${work.slug}-${index}`}>
               {paragraph}
             </p>

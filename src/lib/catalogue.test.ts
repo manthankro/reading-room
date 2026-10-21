@@ -15,6 +15,14 @@ describe("catalogue", () => {
     assert.ok(catalogue.every((w) => w.slug && w.title && w.paragraphs.length > 0));
   });
 
+  it("keeps original regional stories available across eight Indian languages", () => {
+    for (const language of ["Hindi", "Marathi", "Gujarati", "Bengali", "Tamil", "Telugu", "Kannada", "Malayalam"]) {
+      const stories = catalogue.filter((work) => work.language === language && work.author === "Reading Room");
+      assert.ok(stories.length >= 3, `${language} needs at least three first-party stories`);
+      assert.ok(stories.every((work) => work.paragraphs.length >= 4), `${language} stories should have readable body content`);
+    }
+  });
+
   it("resolves works by slug", () => {
     const sample = catalogue[0];
     assert.equal(getWork(sample.slug)?.title, sample.title);
@@ -31,6 +39,12 @@ describe("catalogue", () => {
   it("supports typo-tolerant search", () => {
     const hit = catalogue.find((w) => matchesSearch(w, w.title.slice(0, 6)));
     assert.ok(hit);
+  });
+
+  it("searches story text beyond the opening line", () => {
+    const work = getWork("the-story-of-an-hour");
+    assert.ok(work);
+    assert.ok(matchesSearch(work, "railroad disaster"));
   });
 
   it("computes positive reading minutes", () => {

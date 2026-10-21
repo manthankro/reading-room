@@ -82,6 +82,8 @@ export function periodFor(year: number): string {
   return "2000s";
 }
 
+const searchableWork = new WeakMap<Work, string[]>();
+
 function editDistance(a: string, b: string): number {
   if (Math.abs(a.length - b.length) > 2) return 3;
   let row = Array.from({ length: b.length + 1 }, (_, i) => i);
@@ -100,13 +102,17 @@ function editDistance(a: string, b: string): number {
 }
 
 export function matchesSearch(work: Work, query: string): boolean {
-  const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+  const terms = query.toLocaleLowerCase().normalize("NFKD").trim().split(/\s+/).filter(Boolean);
   if (!terms.length) return true;
-  const words = `${work.title} ${work.author} ${work.year} ${openingLine(work)} ${(work.genres ?? []).join(" ")}`
+  let words = searchableWork.get(work);
+  if (!words) {
+    words = `${work.title} ${work.author} ${work.year} ${work.paragraphs.join(" ")} ${(work.genres ?? []).join(" ")}`
     .toLocaleLowerCase()
     .normalize("NFKD")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/);
+    searchableWork.set(work, words);
+  }
   return terms.every((term) => {
     const normalized = term.normalize("NFKD").replace(/[^\p{L}\p{N}]/gu, "");
     return words.some(
