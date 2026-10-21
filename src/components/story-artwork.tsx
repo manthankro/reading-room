@@ -34,7 +34,10 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
   );
   const cx = 110 + (seed % 55);
   const cy = 105 + ((seed >>> 7) % 60);
-  const motif = mystery ? "mystery" : nature ? "nature" : romance ? "romance" : myth ? "myth" : "quiet";
+  const marathi = work.language === "Marathi";
+  const hindiPeepal = work.language === "Hindi" && /पीपल/.test(work.title);
+  const hindiTea = work.language === "Hindi" && /चाय|केतली/.test(work.title);
+  const motif = marathi ? "marathi-wada" : hindiPeepal ? "hindi-peepal" : hindiTea ? "hindi-tea" : mystery ? "mystery" : nature ? "nature" : romance ? "romance" : myth ? "myth" : "quiet";
   const label = `Illustrated cover artwork for ${work.title}`;
 
   if (work.coverImage) {
@@ -71,7 +74,34 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
       <rect width="320" height="400" fill={`url(#grain-${work.slug})`} />
       <rect x="17" y="17" width="286" height="366" rx="2" fill="none" stroke={palette[1]} strokeOpacity=".7" />
       <circle cx={cx} cy={cy} r={48 + (seed % 27)} fill={palette[1]} fillOpacity=".16" />
-      {motif === "mystery" ? (
+      {motif === "marathi-wada" ? (
+        <>
+          <path d="M42 318V180L160 118L278 180V318Z" fill={palette[0]} stroke={palette[1]} strokeWidth="2" />
+          <path d="M95 318V244Q95 204 160 204Q225 204 225 244V318Z" fill={palette[2]} stroke={palette[1]} strokeWidth="2" />
+          <path d="M64 184H256M80 168H240" stroke={palette[1]} strokeWidth="3" />
+          <path d="M55 90L45 112M105 66L95 92M215 76L205 102M265 105L255 128" stroke={palette[3]} strokeOpacity=".65" strokeWidth="2" />
+          <path d="M28 332Q110 310 160 330T292 330" fill="none" stroke={palette[1]} strokeWidth="2" />
+        </>
+      ) : motif === "hindi-peepal" ? (
+        <>
+          <path d="M158 320Q174 260 158 205Q146 165 112 136M163 222Q192 173 229 147M157 252Q116 219 78 214" fill="none" stroke={palette[1]} strokeWidth="11" strokeLinecap="round" />
+          <circle cx="107" cy="133" r="34" fill={palette[2]} />
+          <circle cx="153" cy="120" r="42" fill={palette[1]} fillOpacity=".82" />
+          <circle cx="207" cy="142" r="36" fill={palette[2]} />
+          <circle cx="86" cy="203" r="29" fill={palette[1]} fillOpacity=".8" />
+          <path d="M36 326Q160 298 284 326" fill="none" stroke={palette[1]} strokeWidth="2" />
+          <path d="M122 322L112 342M160 320L160 346M198 322L208 342" stroke={palette[3]} strokeWidth="2" />
+        </>
+      ) : motif === "hindi-tea" ? (
+        <>
+          <path d="M42 297H278M58 297L78 323H250L270 297" fill={palette[0]} stroke={palette[1]} strokeWidth="2" />
+          <path d="M83 272H236L225 296H94Z" fill={palette[2]} stroke={palette[1]} strokeWidth="2" />
+          <path d="M112 251Q112 225 139 225H183Q210 225 210 251L201 272H121Z" fill={palette[1]} stroke={palette[3]} strokeWidth="2" />
+          <path d="M210 237Q248 232 243 256Q240 270 207 263" fill="none" stroke={palette[1]} strokeWidth="7" />
+          <path d="M138 210Q128 194 140 181M164 211Q153 190 166 172M188 211Q178 194 190 183" fill="none" stroke={palette[3]} strokeOpacity=".8" strokeWidth="3" strokeLinecap="round" />
+          <path d="M38 340Q94 326 150 340T282 340" fill="none" stroke={palette[1]} strokeWidth="2" />
+        </>
+      ) : motif === "mystery" ? (
         <>
           <path d={`M40 305 L40 185 L85 135 L130 185 L130 305 Z`} fill={palette[0]} stroke={palette[1]} strokeWidth="2" />
           <path d="M62 305V220Q85 185 108 220V305" fill={palette[2]} />
