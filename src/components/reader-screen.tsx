@@ -311,7 +311,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <article className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16">
+      <article
+        lang={work.language === "Marathi" ? "mr" : work.language === "Hindi" ? "hi" : "en"}
+        className="paper sheet mx-auto mt-6 mb-16 px-5 py-10 sm:px-10 md:mt-10 md:px-14 md:py-16"
+      >
         {!focus ? (
           <div className="reader-cover-wrap">
             <div className="reader-cover"><StoryArtwork work={work} /></div>
