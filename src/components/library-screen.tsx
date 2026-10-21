@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Download, Search, Shuffle, Sparkles, Upload } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { BookOpen, Download, LayoutGrid, List, Search, Shuffle, Sparkles, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
   catalogue,
@@ -25,6 +25,7 @@ import {
 } from "@/lib/reading-store";
 import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
+import { languageTagFor } from "@/lib/language";
 
 function isSnapshot(value: unknown): value is ReadingSnapshot {
   if (!value || typeof value !== "object") return false;
@@ -51,6 +52,8 @@ export function LibraryScreen() {
   const [author, setAuthor] = useState("all");
   const [time, setTime] = useState("all");
   const [language, setLanguage] = useState("all");
+  const [view, setView] = useState<"grid" | "list">("grid");
+  const [visibleCount, setVisibleCount] = useState(24);
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
   const [genreMood, setGenreMood] = useState("");
@@ -127,6 +130,10 @@ export function LibraryScreen() {
     return result;
   }, [author, collectionId, genre, genreMood, language, period, query, shelf, sort, time]);
 
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [query, shelf, genre, period, author, time, language, sort, collectionId, genreMood]);
+
   const resume = useMemo(() => {
     if (!hydrated) return undefined;
     const latest = Object.entries(places)
@@ -183,137 +190,13 @@ export function LibraryScreen() {
 
   return (
     <div className="shell" data-light="lamp">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-8 md:grid-cols-[17rem_minmax(0,1fr)] md:gap-16 md:px-8 md:py-12">
-        <aside className="md:sticky md:top-10 md:self-start">
-          <p className="kicker">Private shelf</p>
-          <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
-          <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
-            A quiet place for good writing. Keep your place on this device, or sign in to carry your
-            shelf with you.
-          </p>
-          <div className="mt-5 flex items-center gap-3">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <Link to="/login" className="btn btn-quiet">
-                Sign in to sync
-              </Link>
-            </SignedOut>
-            <span className="text-xs muted">Optional account</span>
-          </div>
-          <dl className="mt-8 grid grid-cols-3 gap-3 border-t hairline pt-5">
-            <div>
-              <dt className="kicker">Minutes</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {minuteCount}
-              </dd>
-            </div>
-            <div>
-              <dt className="kicker">Finished</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {hydrated ? finishedCount : 0}
-              </dd>
-            </div>
-            <div>
-              <dt className="kicker">Saved</dt>
-              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
-                {hydrated ? bookmarks.length + highlights.length : 0}
-              </dd>
-            </div>
-          </dl>
-          <div className="mt-7 border-t hairline pt-5">
-            <div className="flex items-center justify-between">
-              <p className="kicker">Today’s reading goal</p>
-              <label className="sr-only" htmlFor="goal-minutes">
-                Daily goal in minutes
-              </label>
-              <select
-                id="goal-minutes"
-                className="select-field compact"
-                value={goalMinutes}
-                onChange={(event) => setGoalMinutes(Number(event.target.value))}
-              >
-                <option value={10}>10 min</option>
-                <option value={20}>20 min</option>
-                <option value={30}>30 min</option>
-                <option value={45}>45 min</option>
-                <option value={60}>60 min</option>
-              </select>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between font-reading">
-              <span className="text-2xl tabular-nums">
-                {todayMinutes}
-                <span className="text-base muted"> / {goalMinutes} min</span>
-              </span>
-              <span className="text-sm muted">
-                {Math.min(100, Math.round((todayMinutes / goalMinutes) * 100))}%
-              </span>
-            </div>
-            <div className="track mt-3">
-              <span style={{ width: `${Math.min(100, (todayMinutes / goalMinutes) * 100)}%` }} />
-            </div>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button type="button" className="btn btn-quiet px-3" onClick={exportShelf}>
-              <Download className="size-4" aria-hidden /> Backup
-            </button>
-            <button
-              type="button"
-              className="btn btn-quiet px-3"
-              onClick={() => importRef.current?.click()}
-            >
-              <Upload className="size-4" aria-hidden /> Restore
-            </button>
-            <input
-              ref={importRef}
-              type="file"
-              accept="application/json,.json"
-              className="sr-only"
-              onChange={(event) => void importShelf(event.currentTarget.files?.[0])}
-            />
-          </div>
-          {message ? (
-            <p role="status" className="mt-3 text-sm muted">
-              {message}
-            </p>
-          ) : null}
-          <p className="mt-5 text-sm muted">
-            {catalogue.length} volumes · {notes.length} margin notes ·{" "}
-            {formatMinutes(totalSeconds(seconds))} together
-          </p>
-          <Link
-            to="/writers"
-            className="mt-6 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
-          >
-            <span className="kicker">For writers</span>
-            <span className="mt-2 block font-reading text-xl">Become a content writer</span>
-            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
-          </Link>
-          {bookmarks.length ? (
-            <section className="mt-8 border-t hairline pt-5">
-              <h2 className="kicker">Your bookmarks</h2>
-              <ul className="mt-3 space-y-2">
-                {bookmarks.slice(0, 5).map((bookmark) => {
-                  const work = getWork(bookmark.slug);
-                  return work ? (
-                    <li key={bookmark.id}>
-                      <Link
-                        to="/read/$slug"
-                        params={{ slug: work.slug }}
-                        className="text-sm underline underline-offset-4"
-                      >
-                        {work.title} · page {bookmark.index + 1}
-                      </Link>
-                    </li>
-                  ) : null;
-                })}
-              </ul>
-            </section>
-          ) : null}
-        </aside>
-
-        <main>
+      <div className="mx-auto grid w-full max-w-[90rem] gap-6 px-4 py-6 sm:px-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8 md:px-8 md:py-10 xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:gap-12">
+        <main className="library-main min-w-0 md:col-start-2 md:row-start-1">
+          <header className="mb-7 rounded-2xl border hairline elev px-5 py-6 sm:px-8 sm:py-8">
+            <p className="kicker">A reading room for everyone</p>
+            <h2 className="mt-3 max-w-2xl font-reading text-3xl leading-tight sm:text-4xl">Leave the noise. Enter a story.</h2>
+            <p className="mt-3 max-w-2xl font-reading text-lg leading-relaxed muted">A quieter corner of the internet. Browse freely, find a story in your language, and leave whenever you like.</p>
+          </header>
           <div className="relative">
             <label className="relative block">
               <span className="sr-only">Search titles, authors, and text</span>
@@ -529,22 +412,29 @@ export function LibraryScreen() {
             </Link>
           ) : null}
 
-          <p className="mt-8 text-sm muted" aria-live="polite">
-            {filtered.length} {filtered.length === 1 ? "volume" : "volumes"}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+<p className="text-sm muted" aria-live="polite">
+            Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}{" "}
+            {filtered.length === 1 ? "volume" : "volumes"}
             {query ? ` matching “${query}”` : " on the shelf"}
           </p>
+<div className="view-switch" role="group" aria-label="Story display">
+<button type="button" className={view === "grid" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid className="size-4" aria-hidden /><span>Cards</span></button>
+<button type="button" className={view === "list" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "list"} onClick={() => setView("list")}><List className="size-4" aria-hidden /><span>List</span></button>
+</div>
+</div>
           {filtered.length === 0 ? (
             <p className="mt-8 font-reading text-xl">
               Nothing on the shelf matches. Try another spelling or loosen a filter.
             </p>
           ) : (
             shelfSequence.map((id) => {
-              const group = filtered.filter((work) => work.shelf === id);
+              const group = filtered.slice(0, visibleCount).filter((work) => work.shelf === id);
               if (!group.length) return null;
               return (
                 <section key={id} className="mt-8">
                   <h2 className="kicker">{shelfLabel[id]}</h2>
-                  <ul className="story-grid mt-4">
+                  <ul className={`story-grid mt-4 ${view === "list" ? "story-grid--list" : ""}`}>
                     {group.map((work) => {
                       const place = hydrated ? places[work.slug] : undefined;
                       const status = place?.finished
@@ -559,7 +449,7 @@ export function LibraryScreen() {
                             params={{ slug: work.slug }}
                             className="story-card no-underline"
                           >
-                            <div className="story-card-cover" lang={work.language === "Marathi" ? "mr" : work.language === "Hindi" ? "hi" : "en"}>
+                            <div className="story-card-cover" lang={languageTagFor(work.language)}>
                               <StoryArtwork work={work} />
                               <span className="story-card-status">{status}</span>
                             </div>
@@ -586,7 +476,144 @@ export function LibraryScreen() {
               );
             })
           )}
+          {filtered.length > visibleCount ? (
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <button type="button" className="btn btn-ghost" onClick={() => setVisibleCount((count) => count + 24)}>
+                Show 24 more stories
+              </button>
+              <p className="text-xs muted">No rush. Read one story at a time.</p>
+            </div>
+          ) : null}
         </main>
+
+        <aside className="library-sidebar md:col-start-1 md:row-start-1 md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
+          <p className="kicker">Open library</p>
+          <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
+          <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
+            A quiet place for everyone. Browse and read freely; your place stays on this device, and
+            signing in is optional.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+            <SignedOut>
+              <Link to="/login" className="btn btn-quiet">
+                Sign in to sync
+              </Link>
+            </SignedOut>
+            <span className="text-xs muted">Optional account</span>
+          </div>
+          <dl className="mt-8 grid grid-cols-3 gap-3 border-t hairline pt-5">
+            <div>
+              <dt className="kicker">Minutes</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {minuteCount}
+              </dd>
+            </div>
+            <div>
+              <dt className="kicker">Finished</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {hydrated ? finishedCount : 0}
+              </dd>
+            </div>
+            <div>
+              <dt className="kicker">Saved</dt>
+              <dd className="mt-2 font-reading text-2xl tabular-nums leading-none">
+                {hydrated ? bookmarks.length + highlights.length : 0}
+              </dd>
+            </div>
+          </dl>
+          <div className="mt-7 border-t hairline pt-5">
+            <div className="flex items-center justify-between">
+              <p className="kicker">Today’s reading goal</p>
+              <label className="sr-only" htmlFor="goal-minutes">
+                Daily goal in minutes
+              </label>
+              <select
+                id="goal-minutes"
+                className="select-field compact"
+                value={goalMinutes}
+                onChange={(event) => setGoalMinutes(Number(event.target.value))}
+              >
+                <option value={10}>10 min</option>
+                <option value={20}>20 min</option>
+                <option value={30}>30 min</option>
+                <option value={45}>45 min</option>
+                <option value={60}>60 min</option>
+              </select>
+            </div>
+            <div className="mt-4 flex items-baseline justify-between font-reading">
+              <span className="text-2xl tabular-nums">
+                {todayMinutes}
+                <span className="text-base muted"> / {goalMinutes} min</span>
+              </span>
+              <span className="text-sm muted">
+                {Math.min(100, Math.round((todayMinutes / goalMinutes) * 100))}%
+              </span>
+            </div>
+            <div className="track mt-3">
+              <span style={{ width: `${Math.min(100, (todayMinutes / goalMinutes) * 100)}%` }} />
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button type="button" className="btn btn-quiet px-3" onClick={exportShelf}>
+              <Download className="size-4" aria-hidden /> Backup
+            </button>
+            <button
+              type="button"
+              className="btn btn-quiet px-3"
+              onClick={() => importRef.current?.click()}
+            >
+              <Upload className="size-4" aria-hidden /> Restore
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={(event) => void importShelf(event.currentTarget.files?.[0])}
+            />
+          </div>
+          {message ? (
+            <p role="status" className="mt-3 text-sm muted">
+              {message}
+            </p>
+          ) : null}
+          <p className="mt-5 text-sm muted">
+            {catalogue.length} volumes · {notes.length} margin notes ·{" "}
+            {formatMinutes(totalSeconds(seconds))} together
+          </p>
+          <Link
+            to="/writers"
+            className="mt-6 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
+          >
+            <span className="kicker">For writers</span>
+            <span className="mt-2 block font-reading text-xl">Become a content writer</span>
+            <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
+          </Link>
+          {bookmarks.length ? (
+            <section className="mt-8 border-t hairline pt-5">
+              <h2 className="kicker">Your bookmarks</h2>
+              <ul className="mt-3 space-y-2">
+                {bookmarks.slice(0, 5).map((bookmark) => {
+                  const work = getWork(bookmark.slug);
+                  return work ? (
+                    <li key={bookmark.id}>
+                      <Link
+                        to="/read/$slug"
+                        params={{ slug: work.slug }}
+                        className="text-sm underline underline-offset-4"
+                      >
+                        {work.title} · page {bookmark.index + 1}
+                      </Link>
+                    </li>
+                  ) : null;
+                })}
+              </ul>
+            </section>
+          ) : null}
+        </aside>
       </div>
     </div>
   );

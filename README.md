@@ -8,7 +8,8 @@ Browse a catalogue of public-domain classics and original works. Your reading pr
 
 ## Features
 
-- Search and filter by genre, form, author, period, and reading time
+- Search and filter by genre, form, author, period, language, and reading time
+- Switch between illustrated card browsing and a compact story list, with a calm “show more” control
 - Illustrated editorial story cards with distinct locally rendered cover art and optional persistent cover-image URLs
 - Mood-led genre browsing, including mystery, myths, romance, quiet reading, and adventure
 - A Daily Escape feature with a stable daily story, cover art, teaser, and direct reading action
@@ -46,7 +47,7 @@ Useful commands:
 
 ## Visual reading experience
 
-Reading Room creates deterministic, story-specific SVG cover illustrations locally from each work’s slug and thematic metadata. The same cover component is reused in the daily feature, catalogue cards, and reader detail page. Works can optionally define a `coverImage` URL in their catalogue data to use a persistent hosted cover instead. Existing works default to English unless a `language` value is supplied. Covers remain outside the reading text so focus mode stays uncluttered. The catalogue is currently code-managed; a database-backed cover upload/admin interface is not part of this release.
+Reading Room creates deterministic, story-specific SVG cover illustrations locally from each work’s slug and thematic metadata. The same cover component is reused in the daily feature, catalogue cards, and reader detail page. Works can optionally define a `coverImage` URL in their catalogue data to use a persistent hosted cover instead. The catalogue includes original works in English, Hindi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, and Malayalam; additional languages can be added through the same metadata field. Covers remain outside the reading text so focus mode stays uncluttered. The catalogue is currently code-managed; a database-backed cover upload/admin interface is not part of this release.
 
 ## How it works
 
