@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen, Download, LayoutGrid, List, Search, Shuffle, Sparkles, Upload } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import {
   catalogue,
@@ -53,6 +53,7 @@ export function LibraryScreen() {
   const [time, setTime] = useState("all");
   const [language, setLanguage] = useState("all");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [visibleCount, setVisibleCount] = useState(24);
   const [sort, setSort] = useState("title");
   const [collectionId, setCollectionId] = useState("");
   const [genreMood, setGenreMood] = useState("");
@@ -129,6 +130,10 @@ export function LibraryScreen() {
     return result;
   }, [author, collectionId, genre, genreMood, language, period, query, shelf, sort, time]);
 
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [query, shelf, genre, period, author, time, language, sort, collectionId, genreMood]);
+
   const resume = useMemo(() => {
     if (!hydrated) return undefined;
     const latest = Object.entries(places)
@@ -186,7 +191,7 @@ export function LibraryScreen() {
   return (
     <div className="shell" data-light="lamp">
       <div className="mx-auto grid w-full max-w-[90rem] gap-6 px-4 py-6 sm:px-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-8 md:px-8 md:py-10 xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:gap-12">
-        <aside className="library-sidebar md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
+        <aside className="library-sidebar order-2 md:order-1 md:sticky md:top-6 md:max-h-[calc(100dvh-3rem)] md:self-start md:overflow-y-auto md:pr-2">
           <p className="kicker">Open library</p>
           <h1 className="mt-3 font-reading text-4xl leading-none tracking-tight">Reading Room</h1>
           <p className="mt-4 max-w-sm font-reading text-lg leading-snug">
@@ -315,7 +320,12 @@ export function LibraryScreen() {
           ) : null}
         </aside>
 
-        <main>
+        <main className="library-main order-1 min-w-0 md:order-2">
+          <header className="mb-7 rounded-2xl border hairline elev px-5 py-6 sm:px-8 sm:py-8">
+            <p className="kicker">A reading room for everyone</p>
+            <h2 className="mt-3 max-w-2xl font-reading text-3xl leading-tight sm:text-4xl">Leave the noise. Enter a story.</h2>
+            <p className="mt-3 max-w-2xl font-reading text-lg leading-relaxed muted">A quieter corner of the internet. Browse freely, find a story in your language, and leave whenever you like.</p>
+          </header>
           <div className="relative">
             <label className="relative block">
               <span className="sr-only">Search titles, authors, and text</span>
@@ -533,7 +543,8 @@ export function LibraryScreen() {
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
 <p className="text-sm muted" aria-live="polite">
-            {filtered.length} {filtered.length === 1 ? "volume" : "volumes"}
+            Showing {Math.min(visibleCount, filtered.length)} of {filtered.length}{" "}
+            {filtered.length === 1 ? "volume" : "volumes"}
             {query ? ` matching “${query}”` : " on the shelf"}
           </p>
 <div className="view-switch" role="group" aria-label="Story display">
@@ -547,7 +558,7 @@ export function LibraryScreen() {
             </p>
           ) : (
             shelfSequence.map((id) => {
-              const group = filtered.filter((work) => work.shelf === id);
+              const group = filtered.slice(0, visibleCount).filter((work) => work.shelf === id);
               if (!group.length) return null;
               return (
                 <section key={id} className="mt-8">
@@ -594,6 +605,14 @@ export function LibraryScreen() {
               );
             })
           )}
+          {filtered.length > visibleCount ? (
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <button type="button" className="btn btn-ghost" onClick={() => setVisibleCount((count) => count + 24)}>
+                Show 24 more stories
+              </button>
+              <p className="text-xs muted">No rush. Read one story at a time.</p>
+            </div>
+          ) : null}
         </main>
       </div>
     </div>
