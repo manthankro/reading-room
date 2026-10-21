@@ -59,7 +59,7 @@ type EmailConfig =
   | { provider: "resend"; to: string; from: string; apiKey: string };
 
 function configuredEmail(): EmailConfig | null {
-  const to = process.env.WRITER_APPLICATION_EMAIL?.trim();
+  const to = process.env.WRITER_APPLICATION_EMAIL?.trim() || "pramanixlabs@gmail.com";
   const smtpUser = process.env.GMAIL_SMTP_USER?.trim();
   const appPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
   if (to && smtpUser && appPassword) {
