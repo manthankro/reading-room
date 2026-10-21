@@ -1,6 +1,6 @@
 import type { Work } from "./works.ts";
 
-/** Original Marathi and Hindi stories written for Reading Room. */
+/** Original short stories across Indian languages, written for Reading Room. */
 export const regionalWorks: Work[] = [
   {
     slug: "pavsachi-khidki",
