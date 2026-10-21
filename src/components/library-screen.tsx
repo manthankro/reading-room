@@ -24,6 +24,7 @@ import {
 import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
 import { languageTagFor } from "@/lib/language";
+import { feedbackHref } from "@/lib/feedback";
 
 export function LibraryScreen() {
   const [query, setQuery] = useState("");
@@ -514,6 +515,14 @@ export function LibraryScreen() {
             <span className="mt-2 block font-reading text-xl">Become a content writer</span>
             <span className="mt-1 block text-sm muted">Share stories, poems, and regional voices.</span>
           </Link>
+          <a
+            href={feedbackHref}
+            className="mt-3 block rounded-xl border hairline elev p-4 no-underline transition hover:border-[var(--color-accent)]"
+          >
+            <span className="kicker">Help improve the Reading Room</span>
+            <span className="mt-2 block font-reading text-xl">Share feedback</span>
+            <span className="mt-1 block text-sm muted">Tell us what you enjoy or what could work better.</span>
+          </a>
           {bookmarks.length ? (
             <section className="mt-8 border-t hairline pt-5">
               <h2 className="kicker">Your bookmarks</h2>

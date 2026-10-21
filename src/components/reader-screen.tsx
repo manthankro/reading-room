@@ -6,6 +6,7 @@ import { getWork, readingMinutes } from "@/lib/library";
 import { StoryArtwork } from "@/components/story-artwork";
 import { AmbientPlayer } from "@/components/ambient-player";
 import { languageTagFor } from "@/lib/language";
+import { feedbackHref } from "@/lib/feedback";
 import {
   formatMinutes,
   useReadingStore,
@@ -412,6 +413,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
           ) : (
             <p className="mt-6 text-sm">Marked as read.</p>
           )}
+          <p className="mt-6 border-t hairline pt-4 text-sm muted">
+            Enjoyed this story or have an idea for the Reading Room?{" "}
+            <a className="underline underline-offset-4" href={feedbackHref}>Share feedback</a>.
+          </p>
         </footer>
       </article>
 
