@@ -49,6 +49,10 @@ Useful commands:
 | `npm run build` | Build the production app and apply configured migrations |
 | `npm run preview` | Preview a production build |
 
+## New story shelves
+
+The catalogue now includes original sports fiction and illustrated regional-language comics across Hindi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, and Malayalam. A dedicated Mahabharata shelf presents an English prose retelling across its 18 parvas; regional-language Mahabharata editions are not included yet.
+
 ## Visual reading experience
 
 Reading Room creates deterministic, story-specific SVG cover illustrations locally from each work’s slug and thematic metadata. The same cover component is reused in the daily feature, catalogue cards, and reader detail page. Works can optionally define a `coverImage` URL in their catalogue data to use a persistent hosted cover instead. The catalogue includes original works in English, Hindi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, and Malayalam; additional languages can be added through the same metadata field. Covers remain outside the reading text so focus mode stays uncluttered. The catalogue is currently code-managed; a database-backed cover upload/admin interface is not part of this release.
