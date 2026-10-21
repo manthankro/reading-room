@@ -27,6 +27,7 @@ const featuredPathIds = new Set([
   "panels",
   "anime",
   "sports",
+  "historical",
   "regional-voices",
   "mahabharata",
   "myths",

@@ -6,6 +6,7 @@ import { regionalWorks } from "./works-regional.ts";
 import { comicsAndSportsWorks } from "./works-comics-sports.ts";
 import { mahabharataWorks } from "./works-mahabharata.ts";
 import { animeWorks } from "./works-anime.ts";
+import { historicalWorks, illustratedComedyWorks } from "./works-historical.ts";
 
 /** Full shelf: classics + original fiction + wisdom + mythology. */
 export const catalogue: Work[] = [
@@ -17,6 +18,8 @@ export const catalogue: Work[] = [
   ...comicsAndSportsWorks,
   ...mahabharataWorks,
   ...animeWorks,
+  ...historicalWorks,
+  ...illustratedComedyWorks,
 ];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
@@ -184,10 +187,46 @@ export const collections = [
     select: (work: Work) => allGenresOf(work).includes("Comics"),
   },
   {
+    id: "schoolyard-comics",
+    title: "Schoolyard comics",
+    note: "Original school adventures, pranks, friendship, and oversized kites.",
+    select: (work: Work) => work.slug === "comic-schoolyard-kite-day",
+  },
+  {
+    id: "silent-comedy",
+    title: "Silent comedy comics",
+    note: "Wordless-era slapstick told as a locally illustrated panel story.",
+    select: (work: Work) => work.slug === "comic-umbrella-orchestra",
+  },
+  {
     id: "anime",
     title: "Anime & manga",
-    note: "Original illustrated adventures with expressive, cinematic panel art.",
+    note: "Original, illustrated anime, manga, manhwa, and isekai adventures.",
     select: (work: Work) => allGenresOf(work).includes("Anime"),
+  },
+  {
+    id: "manga",
+    title: "Manga adventures",
+    note: "Original Japanese-inspired panel stories, made for the Reading Room.",
+    select: (work: Work) => allGenresOf(work).includes("Manga"),
+  },
+  {
+    id: "manhwa",
+    title: "Manhwa stories",
+    note: "Original Korean-inspired illustrated journeys and character dramas.",
+    select: (work: Work) => allGenresOf(work).includes("Manhwa"),
+  },
+  {
+    id: "isekai",
+    title: "Isekai worlds",
+    note: "Original portal fantasies about starting over in another world.",
+    select: (work: Work) => allGenresOf(work).includes("Isekai"),
+  },
+  {
+    id: "historical",
+    title: "Historical stories",
+    note: "Original fiction set in historic places, with its era named clearly.",
+    select: (work: Work) => allGenresOf(work).includes("Historical"),
   },
   {
     id: "sports",
@@ -234,8 +273,8 @@ export const collections = [
   {
     id: "century",
     title: "Across the centuries",
-    note: "Writing from before 1800, the 1800s, and the new century.",
-    select: (work: Work) => work.year < 1800 || work.year >= 1900,
+    note: "Browse stories by the era they were written in.",
+    select: (work: Work) => work.year < 1800 || (work.year >= 1800 && work.year < 2000),
   },
   {
     id: "regional-voices",

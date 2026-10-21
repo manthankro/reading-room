@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
 import { StoryArtwork } from "@/components/story-artwork";
 import { mahabharataWorks } from "@/lib/works-mahabharata";
+import { readingMinutes, wordCount } from "@/lib/library";
 
 export function MahabharataScreen() {
   return (
@@ -79,7 +80,7 @@ export function MahabharataScreen() {
                       {chapter.title.split(" — ")[1]}
                     </span>
                     <span className="mt-1 block text-sm muted">
-                      {chapter.paragraphs.join(" ").trim().split(/\s+/).length} words · Read chapter
+                      {readingMinutes(chapter)} min · {wordCount(chapter)} words
                     </span>
                   </span>
                   <ChevronRight

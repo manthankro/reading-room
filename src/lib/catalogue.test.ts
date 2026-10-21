@@ -2,12 +2,15 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   catalogue,
+  comicPanels,
   collections,
   genreFor,
   getWork,
   matchesSearch,
   readingMinutes,
+  wordCount,
 } from "./library.ts";
+import { mahabharataWorks } from "./works-mahabharata.ts";
 
 describe("catalogue", () => {
   it("includes classics, originals, wisdom, and myths", () => {
@@ -62,5 +65,37 @@ describe("catalogue", () => {
         assert.ok(count > 0, `collection ${path.id} matched nothing`);
       }
     }
+  });
+
+  it("offers distinct, multi-minute illustrated subgenres and historical shelves", () => {
+    for (const [id, genre] of [
+      ["manga", "Manga"],
+      ["manhwa", "Manhwa"],
+      ["isekai", "Isekai"],
+      ["historical", "Historical"],
+    ] as const) {
+      const path = collections.find((item) => item.id === id);
+      assert.ok(path, `missing ${id} reading path`);
+      assert.ok(catalogue.some((work) => path.select(work) && work.genres?.includes(genre)));
+    }
+
+    for (const slug of [
+      "manga-paper-moon-club",
+      "manhwa-rooftop-garden",
+      "isekai-second-sunrise",
+      "comic-schoolyard-kite-day",
+      "comic-umbrella-orchestra",
+    ]) {
+      const work = getWork(slug);
+      assert.ok(work, `missing illustrated story ${slug}`);
+      assert.equal(comicPanels(work).length, 16, `${slug} should have 16 panels`);
+      assert.ok(readingMinutes(work) >= 2, `${slug} should show a multi-minute reading time`);
+    }
+  });
+
+  it("keeps all 18 Mahabharata parvas and shows their real reading lengths", () => {
+    assert.equal(mahabharataWorks.length, 18);
+    assert.ok(mahabharataWorks.every((chapter) => wordCount(chapter) > 300));
+    assert.ok(mahabharataWorks.every((chapter) => readingMinutes(chapter) >= 2));
   });
 });
