@@ -2,8 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Share2, Sun, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { getWork, readingMinutes } from "@/lib/library";
+import { comicPanels, getWork, readingMinutes } from "@/lib/library";
 import { StoryArtwork } from "@/components/story-artwork";
+import { ComicPanelArtwork } from "@/components/comic-panel-artwork";
 import { AmbientPlayer } from "@/components/ambient-player";
 import { languageTagFor } from "@/lib/language";
 import { feedbackHref } from "@/lib/feedback";
@@ -19,7 +20,16 @@ import {
 type Anchor = { text: string; top: number; left: number };
 
 function genreForReader(work: { genres?: string[]; shelf: string }): string {
-  return work.genres?.[0] ?? (work.shelf === "poem" ? "Poetry" : work.shelf === "essay" ? "Essay" : work.shelf === "letter" ? "Letter" : "Short fiction");
+  return (
+    work.genres?.[0] ??
+    (work.shelf === "poem"
+      ? "Poetry"
+      : work.shelf === "essay"
+        ? "Essay"
+        : work.shelf === "letter"
+          ? "Letter"
+          : "Short fiction")
+  );
 }
 
 const lights: { value: Light; label: string; icon: typeof Lamp }[] = [
@@ -48,6 +58,11 @@ const leadings: { value: Leading; label: string }[] = [
 
 export function ReaderScreen({ slug }: { slug: string }) {
   const work = getWork(slug);
+  const comic = work?.genres?.some((genre) => genre === "Comics" || genre === "Anime") ?? false;
+  const passages = useMemo(
+    () => (work ? (comic ? comicPanels(work) : work.paragraphs) : []),
+    [comic, work],
+  );
   const hydrated = useReadingStore((state) => state.hydrated);
   const place = useReadingStore((state) => state.places[slug]);
   const allNotes = useReadingStore((state) => state.notes);
@@ -65,6 +80,8 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const leading = useReadingStore((state) => state.leading);
   const focus = useReadingStore((state) => state.focus);
   const setPlace = useReadingStore((state) => state.setPlace);
+  const markAsRead = useReadingStore((state) => state.markAsRead);
+  const markAsUnread = useReadingStore((state) => state.markAsUnread);
   const addSeconds = useReadingStore((state) => state.addSeconds);
   const addNote = useReadingStore((state) => state.addNote);
   const removeNote = useReadingStore((state) => state.removeNote);
@@ -119,10 +136,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
         const index = Number((visible.target as HTMLElement).dataset.p);
         if (Number.isNaN(index)) return;
         const current = useReadingStore.getState().places[slug];
-        const finished = Boolean(current?.finished) || (last > 0 && index >= last && index > 0);
+        const finished = Boolean(current?.finished);
         if (!current && index === 0 && !finished) return;
         if (current && current.index === index && current.finished === finished) return;
-        const ratio = last === 0 ? 1 : index / last;
+        const ratio = last === 0 ? 0.99 : Math.min(0.99, index / last);
         setPlace(slug, { index, ratio, finished });
       },
       { rootMargin: "-18% 0px -55% 0px", threshold: [0.25, 0.6] },
@@ -187,7 +204,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
 
   if (!work) {
     return (
-      <div className="shell" data-light="lamp">
+      <div className="shell">
         <main className="mx-auto max-w-xl px-6 py-24">
           <h1 className="font-reading text-3xl">Not on this shelf</h1>
           <p className="mt-3 muted">That volume isn’t in the room.</p>
@@ -203,7 +220,6 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const percent = Math.round(ratio * 100);
   const remaining = Math.max(1, Math.round(readingMinutes(work) * (1 - ratio)));
   const poem = work.shelf === "poem";
-  const comic = work.genres?.includes("Comics") ?? false;
 
   function openNotes(quote?: string) {
     setNotesClosing(false);
@@ -253,7 +269,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="shell" data-light={light}>
+    <div className="shell">
       <header className="bar sticky top-0 z-30 border-b hairline">
         {focus ? (
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
@@ -301,7 +317,11 @@ export function ReaderScreen({ slug }: { slug: string }) {
               <PenLine className="size-4" aria-hidden />
               {notes.length > 0 ? <span className="tabular-nums">{notes.length}</span> : null}
             </button>
-            <button type="button" className="btn btn-quiet shrink-0 px-3" onClick={() => void shareStory()}>
+            <button
+              type="button"
+              className="btn btn-quiet shrink-0 px-3"
+              onClick={() => void shareStory()}
+            >
               <Share2 className="size-4" aria-hidden />
               <span className="sr-only sm:not-sr-only">Share</span>
             </button>
@@ -348,8 +368,12 @@ export function ReaderScreen({ slug }: { slug: string }) {
       >
         {!focus ? (
           <div className="reader-cover-wrap">
-            <div className="reader-cover"><StoryArtwork work={work} /></div>
-            <p className="reader-cover-caption">{genreForReader(work)} · {work.language ?? "English"}</p>
+            <div className="reader-cover">
+              <StoryArtwork work={work} />
+            </div>
+            <p className="reader-cover-caption">
+              {genreForReader(work)} · {work.language ?? "English"}
+            </p>
           </div>
         ) : null}
         <header className={poem ? "measure-narrow mx-auto" : "measure-comfort mx-auto"}>
@@ -368,31 +392,49 @@ export function ReaderScreen({ slug }: { slug: string }) {
               defaultValue=""
               onChange={(event) => {
                 if (!event.currentTarget.value) return;
-                document.getElementById(event.currentTarget.value)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                document
+                  .getElementById(event.currentTarget.value)
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
                 event.currentTarget.value = "";
               }}
             >
               <option value="">Choose a passage…</option>
               {work.paragraphs.map((paragraph, index) => (
-                <option key={index} value={`p-${index}`}>{`Passage ${index + 1}: ${paragraph.slice(0, 68).trim()}…`}</option>
+                <option
+                  key={index}
+                  value={`p-${index}`}
+                >{`Passage ${index + 1}: ${paragraph.slice(0, 68).trim()}…`}</option>
               ))}
             </select>
           </label>
         </header>
-        {shareMessage ? <p className="sub mx-auto mt-3 max-w-2xl text-sm" role="status">{shareMessage}</p> : null}
+        {shareMessage ? (
+          <p className="sub mx-auto mt-3 max-w-2xl text-sm" role="status">
+            {shareMessage}
+          </p>
+        ) : null}
 
         <div
           data-readable
           className={`mx-auto mt-10 font-reading ${poem ? "poem" : "prose"} measure-${measure} size-${size} lead-${leading} ${comic ? "comic-spread" : ""}`}
         >
-          {work.paragraphs.map((paragraph, index) =>
+          {passages.map((paragraph, index) =>
             comic ? (
-              <section id={`p-${index}`} data-p={index} className="comic-frame" key={`${work.slug}-${index}`} aria-label={`Comic panel ${index + 1}`}>
+              <section
+                id={`p-${index}`}
+                data-p={index}
+                className="comic-frame"
+                key={`${work.slug}-${index}`}
+                aria-label={`Comic panel ${index + 1}`}
+              >
+                <ComicPanelArtwork work={work} caption={paragraph} index={index} />
                 <div className="comic-scene">
                   <span className="kicker">Panel {String(index + 1).padStart(2, "0")}</span>
-                  <strong>{paragraph.replace(/^(?:Panel|पैनल|પેનલ|প্যানেল|பலகம்|ప్యానెల్|ಫಲಕ|പാനൽ)\s*[\p{N}]+\s*:\s*/iu, "")}</strong>
+                  <strong>{paragraph}</strong>
                 </div>
-                <span className="comic-panel-number" aria-hidden="true">{index + 1}</span>
+                <span className="comic-panel-number" aria-hidden="true">
+                  {index + 1}
+                </span>
               </section>
             ) : (
               <p id={`p-${index}`} data-p={index} key={`${work.slug}-${index}`}>
@@ -406,27 +448,53 @@ export function ReaderScreen({ slug }: { slug: string }) {
           className={`mx-auto mt-12 border-t pt-6 hairline ${poem ? "measure-narrow" : "measure-comfort"}`}
         >
           <p className="kicker sub">End</p>
-          <p className="sub mt-3 text-sm">{["Marathi", "Hindi", "Gujarati", "Bengali", "Tamil", "Telugu", "Kannada", "Malayalam"].includes(work.language ?? "") ? "Original story created for Reading Room." : "Free to read here; check rights before republishing."}</p>
+          <p className="sub mt-3 text-sm">
+            {[
+              "Marathi",
+              "Hindi",
+              "Gujarati",
+              "Bengali",
+              "Tamil",
+              "Telugu",
+              "Kannada",
+              "Malayalam",
+            ].includes(work.language ?? "")
+              ? "Original story created for Reading Room."
+              : "Free to read here; check rights before republishing."}
+          </p>
           {!place?.finished ? (
             <button
               type="button"
               className="btn btn-solid mt-6"
-              onClick={() =>
-                setPlace(slug, {
-                  index: Math.max(0, work.paragraphs.length - 1),
-                  ratio: 1,
-                  finished: true,
-                })
-              }
+              onClick={() => markAsRead(slug, passages.length - 1)}
             >
               Mark as read
             </button>
           ) : (
-            <p className="mt-6 text-sm">Marked as read.</p>
+            <div
+              className="mt-6 flex flex-wrap items-center gap-3"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="text-sm">Marked as read.</span>
+              <button
+                type="button"
+                className="btn btn-quiet"
+                onClick={() => {
+                  markAsUnread(slug);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Mark as unread
+              </button>
+            </div>
           )}
           <p className="mt-6 border-t hairline pt-4 text-sm muted">
             Enjoyed this story or have an idea for the Reading Room?{" "}
-            <a className="underline underline-offset-4" href={feedbackHref}>Share feedback</a>.
+            <a className="underline underline-offset-4" href={feedbackHref}>
+              Share feedback
+            </a>
+            .
           </p>
         </footer>
       </article>

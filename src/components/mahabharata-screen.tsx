@@ -5,7 +5,7 @@ import { mahabharataWorks } from "@/lib/works-mahabharata";
 
 export function MahabharataScreen() {
   return (
-    <div className="shell min-h-screen" data-light="lamp">
+    <div className="shell min-h-screen">
       <header className="site-masthead-wrap px-4 sm:px-6 md:px-8">
         <div className="site-masthead mx-auto flex w-full max-w-[90rem] items-center justify-between gap-4 py-4 sm:py-5">
           <Link to="/" className="brand-lockup no-underline" aria-label="Pramanix Shelf home">

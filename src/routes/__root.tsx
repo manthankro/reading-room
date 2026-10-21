@@ -3,6 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { ReadingHydration } from "@/components/reading-hydration";
 import { ReadingSync } from "@/components/reading-sync";
+import { ReadingTheme } from "@/components/theme-control";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "Reading Room";
@@ -34,7 +35,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: () => (
-    <html lang="en" className="antialiased" suppressHydrationWarning>
+    <html lang="en" className="antialiased" data-light="lamp" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -42,6 +43,7 @@ export const Route = createRootRoute({
         <PreviewHostBridge />
         <ReadingHydration />
         <ReadingSync />
+        <ReadingTheme />
         <AuthProvider>
           <Outlet />
         </AuthProvider>

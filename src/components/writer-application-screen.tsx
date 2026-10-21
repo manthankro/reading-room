@@ -56,7 +56,7 @@ export function WriterApplicationScreen() {
   }
 
   return (
-    <div className="shell" data-light="lamp">
+    <div className="shell">
       <main className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
         <Link to="/" className="btn btn-ghost">
           <ArrowLeft className="size-4" aria-hidden /> Reading Room
@@ -70,13 +70,13 @@ export function WriterApplicationScreen() {
             <p className="kicker sub mt-6">Application received</p>
             <h1 className="mt-2 font-reading text-4xl">Thank you for your interest.</h1>
             <p className="sub mt-4 max-w-xl text-lg leading-relaxed">
-              Your application has been saved for the Reading Room team to review. We’ll contact
-              you if there is a suitable opportunity.
+              Your application has been saved for the Reading Room team to review. We’ll contact you
+              if there is a suitable opportunity.
             </p>
             {notificationStatus === "not_configured" ? (
               <p className="sub mt-4 text-sm">
-                Your application is safely stored. The owner’s email notification still needs to
-                be configured.
+                Your application is safely stored. The owner’s email notification still needs to be
+                configured.
               </p>
             ) : notificationStatus === "failed" ? (
               <p className="sub mt-4 text-sm">
@@ -102,7 +102,11 @@ export function WriterApplicationScreen() {
               <p className="muted mt-3 max-w-2xl text-sm leading-relaxed">
                 Writers of every experience level are welcome. We are building original reading in
                 English, Hindi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, Malayalam, and
-                more. Questions? <a className="underline underline-offset-4" href="mailto:pramanixlabs@gmail.com">Contact PramanixLabs</a>.
+                more. Questions?{" "}
+                <a className="underline underline-offset-4" href="mailto:pramanixlabs@gmail.com">
+                  Contact PramanixLabs
+                </a>
+                .
               </p>
             </header>
 
@@ -110,36 +114,87 @@ export function WriterApplicationScreen() {
               <div className="grid gap-6">
                 <label className="block">
                   <span className="kicker sub">Full name</span>
-                  <input className={fieldClass} name="fullName" autoComplete="name" minLength={2} maxLength={120} required />
+                  <input
+                    className={fieldClass}
+                    name="fullName"
+                    autoComplete="name"
+                    minLength={2}
+                    maxLength={120}
+                    required
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Contact email</span>
-                  <input className={fieldClass} name="email" type="email" autoComplete="email" maxLength={254} required />
+                  <input
+                    className={fieldClass}
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    maxLength={254}
+                    required
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Writing languages</span>
-                  <input className={fieldClass} name="languages" placeholder="Marathi, Hindi, English" maxLength={300} required />
-                  <span className="sub mt-2 block text-sm">Separate languages with commas. Add any language you write in.</span>
+                  <input
+                    className={fieldClass}
+                    name="languages"
+                    placeholder="Marathi, Hindi, English"
+                    maxLength={300}
+                    required
+                  />
+                  <span className="sub mt-2 block text-sm">
+                    Separate languages with commas. Add any language you write in.
+                  </span>
                 </label>
                 <label className="block">
                   <span className="kicker sub">Genres or content types</span>
-                  <input className={fieldClass} name="genres" placeholder="Fiction, poetry, folklore" maxLength={500} required />
+                  <input
+                    className={fieldClass}
+                    name="genres"
+                    placeholder="Fiction, poetry, folklore"
+                    maxLength={500}
+                    required
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">A short introduction</span>
-                  <textarea className="writer-textarea" name="introduction" minLength={20} maxLength={1200} required />
+                  <textarea
+                    className="writer-textarea"
+                    name="introduction"
+                    minLength={20}
+                    maxLength={1200}
+                    required
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Writing experience</span>
-                  <textarea className="writer-textarea" name="experience" maxLength={1200} placeholder="Professional experience is not required." />
+                  <textarea
+                    className="writer-textarea"
+                    name="experience"
+                    maxLength={1200}
+                    placeholder="Professional experience is not required."
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Why would you like to join Reading Room?</span>
-                  <textarea className="writer-textarea" name="motivation" minLength={20} maxLength={1600} required />
+                  <textarea
+                    className="writer-textarea"
+                    name="motivation"
+                    minLength={20}
+                    maxLength={1600}
+                    required
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Writing sample or portfolio URL (optional)</span>
-                  <input className={fieldClass} name="portfolioUrl" type="url" maxLength={2048} placeholder="https://" />
+                  <input
+                    className={fieldClass}
+                    name="portfolioUrl"
+                    type="url"
+                    maxLength={2048}
+                    placeholder="https://"
+                  />
                 </label>
                 <label className="block">
                   <span className="kicker sub">Message to the team (optional)</span>
@@ -151,17 +206,29 @@ export function WriterApplicationScreen() {
                   <input name="website" tabIndex={-1} autoComplete="off" />
                 </label>
                 <label className="flex items-start gap-3 text-sm leading-relaxed">
-                  <input className="mt-1 size-4 accent-[var(--color-accent)]" type="checkbox" name="consent" required />
+                  <input
+                    className="mt-1 size-4 accent-[var(--color-accent)]"
+                    type="checkbox"
+                    name="consent"
+                    required
+                  />
                   <span>I agree that Reading Room may contact me about this application.</span>
                 </label>
 
                 {state === "error" ? (
-                  <p className="rounded-lg border border-red-900/20 bg-red-100/60 px-4 py-3 text-sm text-red-950" role="alert">
+                  <p
+                    className="rounded-lg border border-red-900/20 bg-red-100/60 px-4 py-3 text-sm text-red-950"
+                    role="alert"
+                  >
                     {error}
                   </p>
                 ) : null}
 
-                <button className="btn btn-solid w-fit" type="submit" disabled={state === "sending"}>
+                <button
+                  className="btn btn-solid w-fit"
+                  type="submit"
+                  disabled={state === "sending"}
+                >
                   <Send className="size-4" aria-hidden />
                   {state === "sending" ? "Sending…" : "Send application"}
                 </button>

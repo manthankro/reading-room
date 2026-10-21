@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { UserButton } from "@/lib/auth/gates";
 import {
   catalogue,
+  comicPanels,
   collections,
   excerpt,
   genreFor,
@@ -21,6 +22,15 @@ import { type Shelf } from "@/lib/works";
 import { StoryArtwork } from "@/components/story-artwork";
 import { languageTagFor } from "@/lib/language";
 import { feedbackHref } from "@/lib/feedback";
+
+const featuredPathIds = new Set([
+  "panels",
+  "anime",
+  "sports",
+  "regional-voices",
+  "mahabharata",
+  "myths",
+]);
 
 export function LibraryScreen() {
   const [query, setQuery] = useState("");
@@ -68,6 +78,25 @@ export function LibraryScreen() {
     () => [...new Set(catalogue.map((work) => work.language ?? "English"))].sort(),
     [],
   );
+
+  function clearFilters() {
+    setQuery("");
+    setShelf("all");
+    setGenre("all");
+    setPeriod("all");
+    setAuthor("all");
+    setTime("all");
+    setLanguage("all");
+    setCollectionId("");
+    setGenreMood("");
+    setSort("title");
+  }
+
+  function chooseCollection(id: string) {
+    const next = collectionId === id ? "" : id;
+    clearFilters();
+    setCollectionId(next);
+  }
 
   const filtered = useMemo(() => {
     let result = catalogue.filter((work) => {
@@ -141,9 +170,20 @@ export function LibraryScreen() {
     !collectionId &&
     !genreMood,
   );
+  const hasActiveFilters = Boolean(
+    query.trim() ||
+    shelf !== "all" ||
+    genre !== "all" ||
+    period !== "all" ||
+    author !== "all" ||
+    time !== "all" ||
+    language !== "all" ||
+    collectionId ||
+    genreMood,
+  );
 
   return (
-    <div className="shell" data-light="lamp">
+    <div className="shell">
       <div className="site-masthead-wrap px-4 sm:px-6 md:px-8">
         <header className="site-masthead mx-auto flex w-full max-w-[100rem] items-center justify-between gap-4 py-4 sm:py-5">
           <Link
@@ -345,10 +385,9 @@ export function LibraryScreen() {
                   className={`mood-card ${genreMood === mood.id ? "is-selected" : ""}`}
                   aria-pressed={genreMood === mood.id}
                   onClick={() => {
-                    setGenreMood(genreMood === mood.id ? "" : mood.id);
-                    setCollectionId("");
-                    setShelf("all");
-                    setGenre("all");
+                    const next = genreMood === mood.id ? "" : mood.id;
+                    clearFilters();
+                    setGenreMood(next);
                   }}
                 >
                   <span className="mood-art" aria-hidden="true">
@@ -407,24 +446,54 @@ export function LibraryScreen() {
               ) : null}
             </div>
             <div className="path-grid mt-3 grid gap-3 sm:grid-cols-2">
-              {collections.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`collection-card ${collectionId === item.id ? "selected" : ""}`}
-                  aria-pressed={collectionId === item.id}
-                  onClick={() => setCollectionId(collectionId === item.id ? "" : item.id)}
-                >
-                  <span className="path-cover" aria-hidden="true">
-                    <StoryArtwork work={catalogue.find(item.select) ?? workOfDay ?? catalogue[0]} />
-                  </span>
-                  <span className="path-copy">
-                    <span className="font-reading text-lg">{item.title}</span>
-                    <span className="mt-1 block text-sm leading-snug muted">{item.note}</span>
-                  </span>
-                </button>
-              ))}
+              {collections
+                .filter((item) => featuredPathIds.has(item.id))
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`collection-card ${collectionId === item.id ? "selected" : ""}`}
+                    aria-pressed={collectionId === item.id}
+                    onClick={() => chooseCollection(item.id)}
+                  >
+                    <span className="path-cover" aria-hidden="true">
+                      <StoryArtwork
+                        work={catalogue.find(item.select) ?? workOfDay ?? catalogue[0]}
+                      />
+                    </span>
+                    <span className="path-copy">
+                      <span className="font-reading text-lg">{item.title}</span>
+                      <span className="mt-1 block text-sm leading-snug muted">{item.note}</span>
+                    </span>
+                  </button>
+                ))}
             </div>
+            <details className="more-paths mt-3">
+              <summary className="btn btn-quiet">More reading paths</summary>
+              <div className="path-grid mt-3 grid gap-3 sm:grid-cols-2">
+                {collections
+                  .filter((item) => !featuredPathIds.has(item.id))
+                  .map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`collection-card ${collectionId === item.id ? "selected" : ""}`}
+                      aria-pressed={collectionId === item.id}
+                      onClick={() => chooseCollection(item.id)}
+                    >
+                      <span className="path-cover" aria-hidden="true">
+                        <StoryArtwork
+                          work={catalogue.find(item.select) ?? workOfDay ?? catalogue[0]}
+                        />
+                      </span>
+                      <span className="path-copy">
+                        <span className="font-reading text-lg">{item.title}</span>
+                        <span className="mt-1 block text-sm leading-snug muted">{item.note}</span>
+                      </span>
+                    </button>
+                  ))}
+              </div>
+            </details>
           </section>
           <div className="mt-7 flex flex-wrap gap-2" role="group" aria-label="Shelves">
             {shelfOrder.map((item) => (
@@ -488,6 +557,11 @@ export function LibraryScreen() {
               }}
             />
           </section>
+          {hasActiveFilters ? (
+            <button type="button" className="btn btn-quiet mt-3" onClick={clearFilters}>
+              Clear all filters
+            </button>
+          ) : null}
 
           {showResume && resume?.work ? (
             <Link
@@ -503,7 +577,9 @@ export function LibraryScreen() {
               </p>
               <p className="mt-3 line-clamp-3 font-reading text-lg leading-snug italic muted">
                 {excerpt(
-                  resume.work.paragraphs[resume.place.index] ?? openingLine(resume.work),
+                  (resume.work.genres?.some((item) => item === "Comics" || item === "Anime")
+                    ? comicPanels(resume.work)
+                    : resume.work.paragraphs)[resume.place.index] ?? openingLine(resume.work),
                   180,
                 )}
               </p>
