@@ -34,6 +34,10 @@ const artDirections = {
     ["#263a40", "#d0b37c", "#8b6950", "#eee2ca"],
     ["#2e4140", "#cdb782", "#926e55", "#f0e5d0"],
   ],
+  anime: [
+    ["#172947", "#e9b75f", "#d95e6a", "#f9e3b2"],
+    ["#35274f", "#f2c66d", "#6aa9b7", "#f4e1c8"],
+  ],
   science: [
     ["#242c3a", "#c0ab79", "#5f7c7d", "#e8e2d2"],
     ["#2c3340", "#c5ae7c", "#688381", "#e8e1d1"],
@@ -86,6 +90,7 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
   const sports = /sports|cricket|football|kabaddi|race|marathon|rowing|run|match/.test(
     title + " " + genres,
   );
+  const anime = /anime|manga/.test(title + " " + genres);
   const adventure = /adventure|journey|voyage|travel|quest|expedition|island/.test(
     title + " " + genres,
   );
@@ -109,17 +114,19 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
               ? "science"
               : sports
                 ? "sports"
-                : romance
-                ? "romance"
-                : myth
-                  ? "myth"
-                  : adventure
-                    ? "adventure"
-                    : nature
-                      ? "nature"
-                      : poetry
-                        ? "poetry"
-                        : "quiet";
+                : anime
+                  ? "anime"
+                  : romance
+                    ? "romance"
+                    : myth
+                      ? "myth"
+                      : adventure
+                        ? "adventure"
+                        : nature
+                          ? "nature"
+                          : poetry
+                            ? "poetry"
+                            : "quiet";
   const directionPalettes = artDirections[direction as keyof typeof artDirections];
   const palette = directionPalettes
     ? directionPalettes[(seed >>> 3) % directionPalettes.length]
@@ -130,7 +137,9 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
       ? "hindi-peepal"
       : hindiTea
         ? "hindi-tea"
-        : direction;
+        : anime
+          ? "anime"
+          : direction;
   const label = `Illustrated cover artwork for ${work.title}`;
 
   if (work.coverImage) {
@@ -176,7 +185,34 @@ export function StoryArtwork({ work, className = "" }: { work: Work; className?:
         strokeOpacity=".7"
       />
       <circle cx={cx} cy={cy} r={48 + (seed % 27)} fill={palette[1]} fillOpacity=".16" />
-      {motif === "marathi-wada" ? (
+      {motif === "anime" ? (
+        <>
+          <path
+            d="M34 310L78 190L118 252L170 133L226 239L263 178L294 310Z"
+            fill={palette[2]}
+            fillOpacity=".72"
+            stroke={palette[1]}
+            strokeWidth="2"
+          />
+          <circle cx="234" cy="102" r="34" fill={palette[1]} fillOpacity=".9" />
+          <path
+            d={`M${cx - 50} 322Q${cx - 72} 250 ${cx - 31} 215L${cx - 7} 196L${cx + 20} 214Q${cx + 58} 258 ${cx + 43} 322Z`}
+            fill={palette[0]}
+            stroke={palette[1]}
+            strokeWidth="3"
+          />
+          <circle cx={cx} cy="178" r="31" fill="#efbd92" stroke={palette[1]} strokeWidth="3" />
+          <path
+            d={`M${cx - 31} 175Q${cx - 32} 132 ${cx + 5} 137L${cx + 36} 157L${cx + 23} 166L${cx + 4} 154L${cx - 9} 170L${cx - 27} 163Z`}
+            fill={palette[1]}
+            stroke={palette[0]}
+            strokeWidth="3"
+          />
+          <ellipse cx={cx - 10} cy="180" rx="4" ry="7" fill="#26253a" />
+          <ellipse cx={cx + 11} cy="180" rx="4" ry="7" fill="#26253a" />
+          <path d="M35 325Q150 300 284 325" fill="none" stroke={palette[1]} strokeWidth="2" />
+        </>
+      ) : motif === "marathi-wada" ? (
         <>
           <path
             d="M42 318V180L160 118L278 180V318Z"

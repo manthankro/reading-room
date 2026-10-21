@@ -6,6 +6,7 @@ export type Genre =
   | "Adventure"
   | "Drama"
   | "Comics"
+  | "Anime"
   | "Mystery"
   | "Science fiction"
   | "Comedy"

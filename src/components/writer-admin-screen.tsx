@@ -31,12 +31,21 @@ export function WriterAdminScreen() {
     try {
       const result = await listWriterApplications();
       setApplications(result);
-      setDrafts(Object.fromEntries(result.map((item) => [item.id, {
-        status: item.status,
-        reviewNotes: item.review_notes,
-      }])));
+      setDrafts(
+        Object.fromEntries(
+          result.map((item) => [
+            item.id,
+            {
+              status: item.status,
+              reviewNotes: item.review_notes,
+            },
+          ]),
+        ),
+      );
     } catch {
-      setError("This area is restricted to approved Reading Room administrators. Check your sign-in and WRITER_ADMIN_EMAILS configuration.");
+      setError(
+        "This area is restricted to approved Reading Room administrators. Check your sign-in and WRITER_ADMIN_EMAILS configuration.",
+      );
     } finally {
       setLoading(false);
     }
@@ -70,7 +79,11 @@ export function WriterAdminScreen() {
     setNotice("");
     try {
       const result = await retryWriterApplicationEmail({ data: { id: item.id } });
-      setNotice(result.notificationStatus === "sent" ? "Email notification sent." : "Notification is still not configured or delivery failed.");
+      setNotice(
+        result.notificationStatus === "sent"
+          ? "Email notification sent."
+          : "Notification is still not configured or delivery failed.",
+      );
       await refresh();
     } catch {
       setNotice("Could not retry this notification. Check the server email configuration.");
@@ -80,18 +93,33 @@ export function WriterAdminScreen() {
   }
 
   return (
-    <main className="shell min-h-screen" data-light="lamp">
+    <main className="shell min-h-screen">
       <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
         <p className="kicker">Private administration</p>
         <h1 className="mt-3 font-reading text-4xl">Writer applications</h1>
         <p className="muted mt-3 max-w-2xl">
-          Candidate details are private. Review them here and keep notes visible only to authorized administrators.
+          Candidate details are private. Review them here and keep notes visible only to authorized
+          administrators.
         </p>
-        {notice ? <p role="status" className="mt-5 rounded-xl border hairline elev p-4 text-sm">{notice}</p> : null}
-        {loading ? <p role="status" className="mt-8 muted">Loading applications…</p> : null}
-        {error ? <p role="alert" className="mt-8 rounded-xl border hairline elev p-5 text-sm">{error}</p> : null}
+        {notice ? (
+          <p role="status" className="mt-5 rounded-xl border hairline elev p-4 text-sm">
+            {notice}
+          </p>
+        ) : null}
+        {loading ? (
+          <p role="status" className="mt-8 muted">
+            Loading applications…
+          </p>
+        ) : null}
+        {error ? (
+          <p role="alert" className="mt-8 rounded-xl border hairline elev p-5 text-sm">
+            {error}
+          </p>
+        ) : null}
         {!loading && !error && applications.length === 0 ? (
-          <p className="mt-8 rounded-xl border hairline elev p-5 font-reading text-xl">No applications yet.</p>
+          <p className="mt-8 rounded-xl border hairline elev p-5 font-reading text-xl">
+            No applications yet.
+          </p>
         ) : null}
 
         <div className="mt-8 grid gap-6">
@@ -101,9 +129,14 @@ export function WriterAdminScreen() {
               <article key={item.id} className="rounded-2xl border hairline elev p-5 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="kicker">Submitted {new Date(item.submittedAt).toLocaleString()}</p>
+                    <p className="kicker">
+                      Submitted {new Date(item.submittedAt).toLocaleString()}
+                    </p>
                     <h2 className="mt-2 font-reading text-2xl">{item.full_name}</h2>
-                    <a className="mt-1 inline-block text-sm underline underline-offset-4" href={`mailto:${item.contact_email}`}>
+                    <a
+                      className="mt-1 inline-block text-sm underline underline-offset-4"
+                      href={`mailto:${item.contact_email}`}
+                    >
                       {item.contact_email}
                     </a>
                     <p className="mt-3 text-sm muted">Languages: {item.languages.join(", ")}</p>
@@ -121,7 +154,9 @@ export function WriterAdminScreen() {
                   </section>
                   <section>
                     <h3 className="kicker">Writing experience</h3>
-                    <p className="mt-2 whitespace-pre-wrap leading-relaxed">{item.experience || "Not provided"}</p>
+                    <p className="mt-2 whitespace-pre-wrap leading-relaxed">
+                      {item.experience || "Not provided"}
+                    </p>
                   </section>
                   <section>
                     <h3 className="kicker">Motivation</h3>
@@ -130,7 +165,12 @@ export function WriterAdminScreen() {
                   {item.portfolio_url ? (
                     <section>
                       <h3 className="kicker">Portfolio</h3>
-                      <a className="mt-2 inline-block break-all underline underline-offset-4" href={item.portfolio_url} target="_blank" rel="noreferrer">
+                      <a
+                        className="mt-2 inline-block break-all underline underline-offset-4"
+                        href={item.portfolio_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         {item.portfolio_url}
                       </a>
                     </section>
@@ -149,12 +189,18 @@ export function WriterAdminScreen() {
                     <select
                       className="select-field mt-2"
                       value={draft.status}
-                      onChange={(event) => setDrafts((current) => ({
-                        ...current,
-                        [item.id]: { ...draft, status: event.target.value as AppStatus },
-                      }))}
+                      onChange={(event) =>
+                        setDrafts((current) => ({
+                          ...current,
+                          [item.id]: { ...draft, status: event.target.value as AppStatus },
+                        }))
+                      }
                     >
-                      {statuses.map((status) => <option key={status} value={status}>{labels[status]}</option>)}
+                      {statuses.map((status) => (
+                        <option key={status} value={status}>
+                          {labels[status]}
+                        </option>
+                      ))}
                     </select>
                   </label>
                   <label>
@@ -163,21 +209,35 @@ export function WriterAdminScreen() {
                       className="writer-textarea mt-2 min-h-28"
                       value={draft.reviewNotes}
                       maxLength={4000}
-                      onChange={(event) => setDrafts((current) => ({
-                        ...current,
-                        [item.id]: { ...draft, reviewNotes: event.target.value },
-                      }))}
+                      onChange={(event) =>
+                        setDrafts((current) => ({
+                          ...current,
+                          [item.id]: { ...draft, reviewNotes: event.target.value },
+                        }))
+                      }
                     />
                   </label>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button type="button" className="btn btn-solid" disabled={busyId === item.id} onClick={() => void save(item)}>
+                  <button
+                    type="button"
+                    className="btn btn-solid"
+                    disabled={busyId === item.id}
+                    onClick={() => void save(item)}
+                  >
                     {busyId === item.id ? "Saving…" : "Save review"}
                   </button>
-                  <p className="text-sm muted">Email: {item.notification_status.replaceAll("_", " ")}</p>
+                  <p className="text-sm muted">
+                    Email: {item.notification_status.replaceAll("_", " ")}
+                  </p>
                   {item.notification_status !== "sent" ? (
-                    <button type="button" className="btn btn-ghost" disabled={busyId === item.id} onClick={() => void retryEmail(item)}>
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      disabled={busyId === item.id}
+                      onClick={() => void retryEmail(item)}
+                    >
                       Retry notification
                     </button>
                   ) : null}

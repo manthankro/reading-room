@@ -53,6 +53,8 @@ type ReadingState = {
   focus: boolean;
   setHydrated: () => void;
   setPlace: (slug: string, patch: Pick<Place, "index" | "ratio"> & { finished?: boolean }) => void;
+  markAsRead: (slug: string, finalIndex: number) => void;
+  markAsUnread: (slug: string) => void;
   addSeconds: (slug: string, amount: number) => void;
   addNote: (note: Omit<MarginNote, "id" | "createdAt">) => void;
   removeNote: (id: string) => void;
@@ -99,6 +101,29 @@ export const useReadingStore = create<ReadingState>()(
                 updatedAt: Date.now(),
                 finished,
               },
+            },
+          };
+        }),
+      markAsRead: (slug, finalIndex) =>
+        set((state) => ({
+          places: {
+            ...state.places,
+            [slug]: {
+              index: Math.max(0, finalIndex),
+              ratio: 1,
+              updatedAt: Date.now(),
+              finished: true,
+            },
+          },
+        })),
+      markAsUnread: (slug) =>
+        set((state) => {
+          const previous = state.places[slug];
+          if (!previous) return state;
+          return {
+            places: {
+              ...state.places,
+              [slug]: { ...previous, index: 0, ratio: 0, finished: false, updatedAt: Date.now() },
             },
           };
         }),

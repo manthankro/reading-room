@@ -6,7 +6,7 @@ export const Route = createFileRoute("/login")({ component: Login });
 
 function Login() {
   return (
-    <main className="shell grid min-h-screen place-items-center px-5 py-12" data-light="lamp">
+    <main className="shell grid min-h-screen place-items-center px-5 py-12">
       <section className="elev w-full max-w-md rounded-2xl border hairline p-7 sm:p-9">
         <Link to="/" className="btn btn-ghost -ml-3">
           <ArrowLeft className="size-4" aria-hidden /> Back to the shelf

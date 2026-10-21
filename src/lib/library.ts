@@ -5,6 +5,7 @@ import { mythWorks } from "./works-myths.ts";
 import { regionalWorks } from "./works-regional.ts";
 import { comicsAndSportsWorks } from "./works-comics-sports.ts";
 import { mahabharataWorks } from "./works-mahabharata.ts";
+import { animeWorks } from "./works-anime.ts";
 
 /** Full shelf: classics + original fiction + wisdom + mythology. */
 export const catalogue: Work[] = [
@@ -15,6 +16,7 @@ export const catalogue: Work[] = [
   ...regionalWorks,
   ...comicsAndSportsWorks,
   ...mahabharataWorks,
+  ...animeWorks,
 ];
 
 export const shelfOrder: { id: Shelf | "all"; label: string }[] = [
@@ -36,6 +38,27 @@ export const shelfSequence: Shelf[] = ["story", "essay", "poem", "letter"];
 
 export function getWork(slug: string): Work | undefined {
   return catalogue.find((work) => work.slug === slug);
+}
+
+const comicPanelMarker = /(?:Panel|पैनल|પેનલ|প্যানেল|பலகம்|ప్యానెల్|ಫಲಕ|പാനൽ)\s*[\p{N}]+\s*:\s*/giu;
+
+/** Split labeled comic sequences into individual reading panels without losing their captions. */
+export function comicPanels(work: Work): string[] {
+  const panels = work.paragraphs.flatMap((paragraph) => {
+    const markers = [...paragraph.matchAll(comicPanelMarker)];
+    if (!markers.length) return [paragraph.trim()].filter(Boolean);
+    const result: string[] = [];
+    const before = paragraph.slice(0, markers[0].index).trim();
+    if (before) result.push(before);
+    for (const [index, marker] of markers.entries()) {
+      const start = (marker.index ?? 0) + marker[0].length;
+      const end = markers[index + 1]?.index ?? paragraph.length;
+      const panel = paragraph.slice(start, end).trim();
+      if (panel) result.push(panel);
+    }
+    return result;
+  });
+  return panels.length ? panels : work.paragraphs;
 }
 
 export function wordCount(work: Work): number {
@@ -63,14 +86,11 @@ export function genreFor(work: Work): string {
   if (work.shelf === "letter") return "Letters";
   if (work.shelf === "essay") return "Essays";
   const title = `${work.title} ${work.author}`.toLowerCase();
-  if (/ghost|haunt|horror|house of usher|yellow wallpaper|tell-tale/.test(title))
-    return "Horror";
-  if (/adventure|sea|island|treasure|journey|road|ferry|lantern/.test(title))
-    return "Adventure";
+  if (/ghost|haunt|horror|house of usher|yellow wallpaper|tell-tale/.test(title)) return "Horror";
+  if (/adventure|sea|island|treasure|journey|road|ferry|lantern/.test(title)) return "Adventure";
   if (/love|magi|marriage|romance|scarf|playlist/.test(title)) return "Love story";
   if (/comic|panel/.test(title)) return "Comics";
-  if (/myth|persephone|orpheus|rama|osiris|amaterasu|odin|inanna/.test(title))
-    return "Mythology";
+  if (/myth|persephone|orpheus|rama|osiris|amaterasu|odin|inanna/.test(title)) return "Mythology";
   return "Short fiction";
 }
 
@@ -94,11 +114,7 @@ function editDistance(a: string, b: string): number {
   for (let i = 1; i <= a.length; i += 1) {
     const next = [i];
     for (let j = 1; j <= b.length; j += 1) {
-      next[j] = Math.min(
-        next[j - 1] + 1,
-        row[j] + 1,
-        row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
-      );
+      next[j] = Math.min(next[j - 1] + 1, row[j] + 1, row[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     }
     row = next;
   }
@@ -110,11 +126,12 @@ export function matchesSearch(work: Work, query: string): boolean {
   if (!terms.length) return true;
   let words = searchableWork.get(work);
   if (!words) {
-    words = `${work.title} ${work.author} ${work.year} ${work.paragraphs.join(" ")} ${(work.genres ?? []).join(" ")}`
-    .toLocaleLowerCase()
-    .normalize("NFKD")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .split(/\s+/);
+    words =
+      `${work.title} ${work.author} ${work.year} ${work.paragraphs.join(" ")} ${(work.genres ?? []).join(" ")}`
+        .toLocaleLowerCase()
+        .normalize("NFKD")
+        .replace(/[^\p{L}\p{N}\s]/gu, " ")
+        .split(/\s+/);
     searchableWork.set(work, words);
   }
   return terms.every((term) => {
@@ -158,14 +175,19 @@ export const collections = [
     id: "pulse",
     title: "Action & adventure",
     note: "Rooftops, ferries, salt maps, and last trains out.",
-    select: (work: Work) =>
-      allGenresOf(work).some((g) => g === "Action" || g === "Adventure"),
+    select: (work: Work) => allGenresOf(work).some((g) => g === "Action" || g === "Adventure"),
   },
   {
     id: "panels",
     title: "Comics",
     note: "Comedy, mystery, adventure, science fiction, and regional panel stories.",
     select: (work: Work) => allGenresOf(work).includes("Comics"),
+  },
+  {
+    id: "anime",
+    title: "Anime & manga",
+    note: "Original illustrated adventures with expressive, cinematic panel art.",
+    select: (work: Work) => allGenresOf(work).includes("Anime"),
   },
   {
     id: "sports",
@@ -219,7 +241,17 @@ export const collections = [
     id: "regional-voices",
     title: "Regional voices",
     note: "Original stories in Indian languages, rooted in everyday places and memories.",
-    select: (work: Work) => ["Marathi", "Hindi", "Gujarati", "Bengali", "Tamil", "Telugu", "Kannada", "Malayalam"].includes(work.language ?? ""),
+    select: (work: Work) =>
+      [
+        "Marathi",
+        "Hindi",
+        "Gujarati",
+        "Bengali",
+        "Tamil",
+        "Telugu",
+        "Kannada",
+        "Malayalam",
+      ].includes(work.language ?? ""),
   },
   {
     id: "poetry",
