@@ -643,3 +643,23 @@
 .reader-jump { max-width: 26rem; }
 .reader-jump select { font-size: .9rem; }
 @media (max-width: 480px) { .reader-cover-wrap { width: min(65%, 14rem); margin-bottom: 1.75rem; } }
+
+
+.writer-textarea {
+  display: block;
+  width: 100%;
+  min-height: 8rem;
+  margin-top: .5rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--page-line);
+  border-radius: .75rem;
+  background: #ffffffb3;
+  color: var(--page-fg);
+  font: inherit;
+  line-height: 1.6;
+  resize: vertical;
+}
+.writer-textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
