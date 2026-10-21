@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Sun, X } from "lucide-react";
+import { ArrowLeft, Bookmark, Lamp, Moon, PenLine, Share2, Sun, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { getWork, readingMinutes } from "@/lib/library";
 import { StoryArtwork } from "@/components/story-artwork";
@@ -81,6 +81,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const [draft, setDraft] = useState("");
   const [draftBody, setDraftBody] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
   const armed = useRef(false);
 
   useEffect(() => {
@@ -227,6 +228,26 @@ export function ReaderScreen({ slug }: { slug: string }) {
     setDraftBody("");
   }
 
+  async function shareStory() {
+    const url = window.location.href;
+    setShareMessage("");
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${work.title} · Reading Room`,
+          text: `Read “${work.title}” in Reading Room.`,
+          url,
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareMessage("Story link copied.");
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setShareMessage("Could not share right now. Please try again.");
+    }
+  }
+
   return (
     <div className="shell" data-light={light}>
       <header className="bar sticky top-0 z-30 border-b hairline">
@@ -241,7 +262,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
             </button>
           </div>
         ) : (
-          <div className="mx-auto flex max-w-3xl items-center gap-1 px-3 py-2 sm:px-4">
+          <div className="reader-toolbar mx-auto flex max-w-5xl items-center gap-1 px-3 py-2 sm:px-4">
             <Link to="/" className="btn btn-ghost shrink-0">
               <ArrowLeft className="size-4" aria-hidden />
               Shelf
@@ -274,6 +295,10 @@ export function ReaderScreen({ slug }: { slug: string }) {
             >
               <PenLine className="size-4" aria-hidden />
               {notes.length > 0 ? <span className="tabular-nums">{notes.length}</span> : null}
+            </button>
+            <button type="button" className="btn btn-quiet shrink-0 px-3" onClick={() => void shareStory()}>
+              <Share2 className="size-4" aria-hidden />
+              <span className="sr-only sm:not-sr-only">Share</span>
             </button>
           </div>
         )}
@@ -348,6 +373,7 @@ export function ReaderScreen({ slug }: { slug: string }) {
             </select>
           </label>
         </header>
+        {shareMessage ? <p className="sub mx-auto mt-3 max-w-2xl text-sm" role="status">{shareMessage}</p> : null}
 
         <div
           data-readable
