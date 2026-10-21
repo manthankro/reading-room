@@ -530,10 +530,16 @@ export function LibraryScreen() {
             </Link>
           ) : null}
 
-          <p className="mt-8 text-sm muted" aria-live="polite">
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+<p className="text-sm muted" aria-live="polite">
             {filtered.length} {filtered.length === 1 ? "volume" : "volumes"}
             {query ? ` matching “${query}”` : " on the shelf"}
           </p>
+<div className="view-switch" role="group" aria-label="Story display">
+<button type="button" className={view === "grid" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid className="size-4" aria-hidden /><span>Cards</span></button>
+<button type="button" className={view === "list" ? "view-switch-button active" : "view-switch-button"} aria-pressed={view === "list"} onClick={() => setView("list")}><List className="size-4" aria-hidden /><span>List</span></button>
+</div>
+</div>
           {filtered.length === 0 ? (
             <p className="mt-8 font-reading text-xl">
               Nothing on the shelf matches. Try another spelling or loosen a filter.
@@ -545,7 +551,7 @@ export function LibraryScreen() {
               return (
                 <section key={id} className="mt-8">
                   <h2 className="kicker">{shelfLabel[id]}</h2>
-                  <ul className="story-grid mt-4">
+                  <ul className={`story-grid mt-4 ${view === "list" ? "story-grid--list" : ""}`}>
                     {group.map((work) => {
                       const place = hydrated ? places[work.slug] : undefined;
                       const status = place?.finished
